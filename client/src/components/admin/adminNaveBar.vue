@@ -223,6 +223,9 @@
           $store.state.admin.middleName
         }}
       </span>
+
+      <v-divider class="white"></v-divider>
+      <br />
       <v-app-bar-nav-icon
         right
         @click="sideBarDrawer = !sideBarDrawer"
@@ -231,7 +234,6 @@
       >
         <v-icon class="white--text">close</v-icon>
       </v-app-bar-nav-icon>
-      <v-divider class="white"></v-divider>
       <br />
       <dl class="pl-0">
         <v-btn

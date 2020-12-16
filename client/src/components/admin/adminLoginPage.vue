@@ -161,9 +161,10 @@ export default {
 
           window.scrollTo(0, 0);
         } catch (error) {
+          if (error.response) {
+            this.adminLoginError = error.response.data.error;
+          } else this.adminLoginError = "Connection to server failed";
           this.loading = false;
-          this.$store.dispatch("setSession", false);
-          this.adminLoginError = error.response.data.error;
         }
       }
     },

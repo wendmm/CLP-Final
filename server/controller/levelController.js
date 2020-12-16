@@ -45,7 +45,7 @@ module.exports = {
 					});
 				} else if (allLevels == "") {
 					return res.status(404).send({
-						error: "There is no reward",
+						error: "There is no level",
 					});
 				} else {
 					res.send({
@@ -60,28 +60,27 @@ module.exports = {
 		}
 	},
 
-	async updateReward(req, res) {
-		const rewardUpdateInfo = {
-			rewardName:
-				req.body.rewardName.charAt(0).toUpperCase() +
-				req.body.rewardName.slice(1).toLowerCase(),
-			rewardDescription: req.body.rewardDescription,
-			minPoint: req.body.minPoint,
-			level: req.body.level,
-			expiryDate: req.body.expiryDate,
+	async updateLevel(req, res) {
+		const levelUpdateInfo = {
+			levelName:
+				req.body.levelName.charAt(0).toUpperCase() +
+				req.body.levelName.slice(1).toLowerCase(),
+			levelDescription: req.body.levelDescription,
+			maximumRange: req.body.maximumRange,
+			minimumRange: req.body.minimumRange,
 		};
-		const rewardId = {
-			_id: req.body.rewardId,
+		const levelId = {
+			_id: req.body.levelId,
 		};
 
 		try {
-			await rewardConnection.updateOne(
-				rewardId,
-				rewardUpdateInfo,
+			await levelConnection.updateOne(
+				levelId,
+				levelUpdateInfo,
 				(err, updateResult) => {
 					if (err)
 						return res.status(403).send({
-							error: "Reward not updated due to dublication reward name",
+							error: "Level not updated due to dublication Level name",
 						});
 					else if (updateResult.nModified == 1)
 						return res.send({
@@ -89,7 +88,7 @@ module.exports = {
 						});
 					else
 						return res.status(404).send({
-							error: "Reward not updated please make change to update",
+							error: "Level not updated please make change to update",
 						});
 				}
 			);
@@ -100,28 +99,25 @@ module.exports = {
 		}
 	},
 
-	async deleteReward(req, res) {
-		const deleteRewardQuery = {
-			_id: req.body.rewardId,
+	async deleteLevel(req, res) {
+		const deleteLevelQuery = {
+			_id: req.body.levelId,
 		};
 		try {
-			await rewardConnection.deleteOne(
-				deleteRewardQuery,
-				(err, deleteResult) => {
-					if (err)
-						return res.status(403).send({
-							error: err,
-						});
-					else if (deleteResult) {
-						return res.send({
-							deleteResult: deleteResult,
-						});
-					} else
-						return res.status(404).send({
-							error: "Delete not completed",
-						});
-				}
-			);
+			await levelConnection.deleteOne(deleteLevelQuery, (err, deleteResult) => {
+				if (err)
+					return res.status(403).send({
+						error: err,
+					});
+				else if (deleteResult) {
+					return res.send({
+						deleteResult: deleteResult,
+					});
+				} else
+					return res.status(404).send({
+						error: "Delete not completed",
+					});
+			});
 		} catch (err) {
 			res.status(400).send({
 				error: err,

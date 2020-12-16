@@ -108,7 +108,12 @@ export default {
 	getAllLevels() {
 		return Api().get("getAllLevels");
 	},
-
+	updateLevel(levelUpdateInfo) {
+		return Api().post("updateLevel", levelUpdateInfo);
+	},
+	deleteLevel(levelId) {
+		return Api().post("/deleteLevel", levelId);
+	},
 	//Customer
 	getAllCustomers() {
 		return Api().get("getAllCustomers");

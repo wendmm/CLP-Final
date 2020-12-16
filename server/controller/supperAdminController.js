@@ -10,8 +10,8 @@ function generateRandomNumber(digit) {
 	return (Math.floor(Math.random() * digit) + digit).toString().substring(1);
 }
 
-const accountSid = "ACd4b30b2ca4ddd489ac0541c74113a3be";
-const authToken = "6d9e9304c09962ab521c8e2153cef5be";
+const accountSid = "ACff9c925d0c376dfa1b3a754fa96d7c6c";
+const authToken = "37e99d71bfa9ddee063d3d11c3eae722";
 const client = require("twilio")(accountSid, authToken);
 
 async function sendSMS(usernamePassword, adminPhone) {
@@ -19,8 +19,8 @@ async function sendSMS(usernamePassword, adminPhone) {
 	await client.messages
 		.create({
 			body: "Phone number: " + adminPhone + ":  " + usernamePassword,
-			from: "+19387773444",
-			to: "+251947012893",
+			from: "+18043125436",
+			to: "+251940881300",
 		})
 		.then((message) => {
 			status = message.status;
@@ -47,7 +47,7 @@ module.exports = {
 			await connection.save((err, branchInfo) => {
 				if (err)
 					return res.status(403).send({
-						error: err + " Branch already registered",
+						error: " Branch already registered",
 					});
 				else if (branchInfo) {
 					return res.send({
@@ -166,11 +166,13 @@ module.exports = {
 												return res.send({
 													adminResult: adminResult,
 												});
-											else
+											else {
+												console.log(username + " " + password);
 												res.status(404).send({
 													error:
 														"Admin assigned but admin Username and password not sent please try again",
 												});
+											}
 										});
 									} else
 										return res.status(403).send({
@@ -430,7 +432,6 @@ module.exports = {
 		};
 
 		const branchNameANDAssignedBool = {
-			adminUserName: "",
 			adminPassword: "",
 			adminAssigned: false,
 			assignedTo: "",
@@ -451,11 +452,11 @@ module.exports = {
 								adminId,
 								branchNameANDAssignedBool,
 								(err, deleteResult) => {
-									if (err)
+									if (err) {
 										return res.status(403).send({
 											error: err,
 										});
-									else if (deleteResult) {
+									} else if (deleteResult) {
 										return res.send({
 											deleteResult: deleteResult,
 										});

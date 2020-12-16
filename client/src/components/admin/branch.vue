@@ -650,9 +650,7 @@ export default {
           });
 
           this.allBranchs[this.allBranchs.indexOf(item)].branchAdminId = "";
-          this.allAdmins.splice(adminCounter, 1);
-          this.allAdminName.splice(adminNameCounter, 1);
-          alert("Admin deleted successfully");
+          alert("Admin removed successfully");
         } catch (err) {
           this.deleteAdminLoading = false;
           if (err.response) {

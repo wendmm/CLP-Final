@@ -95,10 +95,12 @@ module.exports = (app) => {
 	app.get("/getAllRewards", rewardController.getAllRewards);
 	app.post("/updateReward", isAuthenticated, rewardController.updateReward);
 	app.post("/deleteReward", isAuthenticated, rewardController.deleteReward);
+	app.post("/deleteLevel", isAuthenticated, levelController.deleteLevel);
 
 	//level
 	app.post("/saveLevel", levelController.saveLevel);
 	app.get("/getAllLevels", levelController.getAllLevels);
+	app.post("/updateLevel", isAuthenticated, levelController.updateLevel);
 
 	//customer
 	app.post("/registerClient", clientController.clientRegistration);

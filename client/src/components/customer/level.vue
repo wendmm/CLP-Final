@@ -1,10 +1,9 @@
 <template>
   <div>
     <div v-if="$store.state.isAdminLoggedIn" class="white pt-3 pa-10">
-      <p>
-        <span class="headline">Levels/</span>
-        <span class="grey--text">&nbsp;List of levels</span>
-
+      <span class="headline">Levels/</span>
+      <span class="grey--text">&nbsp;List of levels</span>
+      <p class="text-center">
         <span
           v-if="getAllLevelsError"
           class="ml-10 pl-10 red--text text-center"
@@ -83,7 +82,7 @@
                       </v-btn>
                     </v-card-title>
                     <v-card-text>
-                      <p class="red--text">
+                      <p class="text-center red--text">
                         <span
                           v-if="levelRegistrationError"
                           class="ml-10 pl-10 red--text"
@@ -234,6 +233,7 @@ export default {
     levelDescription: "",
     minimumRange: "",
     maximumRange: "",
+    selectedLevelItem: "",
 
     levelNameValidation: [
       (v) =>
@@ -322,45 +322,41 @@ export default {
                 this.levelRegistrationError = "Connection to server failed";
             }
           } else if (this.whatToDo == "update") {
-            this.rewardRegistrationLoading = true;
+            this.levelRegistrationLoading = true;
             try {
-              await apiService.updateReward({
-                rewardName: this.rewardName,
-                rewardDescription: this.rewardDescription,
-                minPoint: this.minPoint,
-                level: this.selectedLevel,
-                expiryDate: this.expiryDate,
-                rewardId: this.selectedRewardItem._id,
+              await apiService.updateLevel({
+                levelName: this.levelName,
+                levelDescription: this.levelDescription,
+                maximumRange: this.maximumRange,
+                minimumRange: this.minimumRange,
+                levelId: this.selectedLevelItem._id,
               });
 
               Object.assign(
-                this.allRewards[
-                  this.allRewards.indexOf(this.selectedRewardItem)
-                ],
+                this.allLevels[this.allLevels.indexOf(this.selectedLevelItem)],
                 {
-                  rewardName: this.rewardName,
-                  rewardDescription: this.rewardDescription,
-                  minPoint: this.minPoint,
-                  level: this.selectedLevel,
-                  expiryDate: this.expiryDate,
+                  levelName: this.levelName,
+                  levelDescription: this.levelDescription,
+                  maximumRange: this.maximumRange,
+                  minimumRange: this.minimumRange,
                 }
               );
-              this.rewardRegisteringSuccess = "Reward updated successfully!";
-              this.rewardRegistrationError = "";
-              this.rewardRegistrationLoading = false;
-              this.rewardDialog = false;
+              this.levelRegistrationSuccess = "Level updated successfully!";
+              this.levelRegistrationError = "";
+              this.levelRegistrationLoading = false;
+              this.levelDialog = false;
             } catch (err) {
-              this.rewardRegistrationLoading = false;
-              this.rewardRegisteringSuccess = "";
+              this.levelRegistrationLoading = false;
+              this.levelRegistrationSuccess = "";
               if (err.response) {
                 if (err.response.data.error == 0) {
                   this.$store.dispatch("setAdmin", "");
                   this.$store.dispatch("setAdminToken", "");
                   this.$store.dispatch("setSession", false);
                   this.$router.push({ name: "adminLoginPage" });
-                } else this.rewardRegistrationError = err.response.data.error;
+                } else this.levelRegistrationError = err.response.data.error;
               } else
-                this.rewardRegistrationError = "Connection to server failed";
+                this.levelRegistrationError = "Connection to server failed";
             }
           }
         } else
@@ -374,6 +370,7 @@ export default {
         this.levelRegistrationSuccess = "";
       }, 10000);
     },
+
     async deleteLevel(item) {
       const deleteConfirmation = confirm(
         "Are you sure you want to delete this(these) offer(s) ?"
@@ -383,7 +380,7 @@ export default {
         try {
           if (this.singleSelect) {
             await apiService.deleteLevel({
-              LevelId: item._id,
+              levelId: item._id,
             });
             this.allLevels.splice(this.allLevels.indexOf(item), 1);
             this.selectedLevel = [];
@@ -423,6 +420,14 @@ export default {
 
     editLevel(item) {
       this.levelDialog = true;
+      this.whatToDo = "update";
+      this.levelRegOrUpdateTitle = "Update Level";
+      this.selectedLevelItem = item;
+
+      this.levelName = item.levelName;
+      this.levelDescription = item.levelDescription;
+      this.maximumRange = item.maximumRange;
+      this.minimumRange = item.minimumRange;
     },
   },
   async created() {
