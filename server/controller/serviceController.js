@@ -20,6 +20,7 @@ module.exports = {
 			serviceConnection.servicePrice = req.body.servicePrice;
 			serviceConnection.serviceDescription = req.body.serviceDescription;
 			serviceConnection.serviceImage = req.body.serviceImage;
+			serviceConnection.branchName = req.body.branchName;
 
 			try {
 				await serviceConnection.save((err, service) => {
@@ -34,7 +35,7 @@ module.exports = {
 						});
 					} else
 						return res.status(404).send({
-							error: "Ther is no service, please add a service",
+							error: "Service registration not completed",
 						});
 				});
 			} catch (err) {

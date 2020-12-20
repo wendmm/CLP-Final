@@ -5,7 +5,7 @@
       flat
       app
       dark
-      class="blue"
+      class="orange darken-4"
       height="50"
       v-if="!$store.state.isAdminLoggedIn"
     >
@@ -79,7 +79,7 @@
       flat
       app
       dark
-      class="blue"
+      class="orange darken-4"
       height="50"
       v-if="$store.state.admin.actor == 'branch'"
     >
@@ -127,7 +127,12 @@
           </v-list>
         </v-menu>
       </div>
-
+      <v-avatar size="40">
+        <a>
+          <v-icon class="white--text">notifications</v-icon>
+          <span class="white--text">7</span>
+        </a>
+      </v-avatar>
       <div class="hidden-xs-only hidden-sm-only">
         <v-btn
           text
@@ -153,7 +158,7 @@
       flat
       app
       dark
-      class="blue lighten-2"
+      class="orange darken-4"
       height="40"
       v-if="$store.state.admin.actor == 'supper'"
     >

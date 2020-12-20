@@ -7,12 +7,16 @@ import { sync } from "vuex-router-sync";
 import vuetify from "./plugins/vuetify";
 Vue.config.productionTip = false;
 
+import VueApexCharts2 from "vue-apexcharts";
+
+Vue.component("apexchart", VueApexCharts2);
+
 sync(store, router);
 
 new Vue({
-  el: "#app",
-  router,
-  store,
-  vuetify,
-  render: h => h(App)
+	el: "#app",
+	router,
+	store,
+	vuetify,
+	render: (h) => h(App),
 });

@@ -389,6 +389,7 @@ export default {
             servicePrice: this.servicePrice,
             serviceDescription: this.serviceDescription,
             serviceImage: this.serviceImage,
+            branchName: this.$store.state.admin.assignedTo,
             actionSendFrom: this.isRegOrUpdate,
             serviceUpdateId: this.serviceUpdateId,
           });
@@ -586,7 +587,12 @@ export default {
     try {
       const response = await apiService.getAllServices();
       this.serviceLoading = false;
-      this.getAllServices = response.data.allServices;
+      var allServices = response.data.allServices;
+      for (let i = 0; i < allServices.length; i++) {
+        if (this.$store.state.admin.assignedTo == allServices[i].branchName) {
+          this.getAllServices.push(allServices[i]);
+        }
+      }
     } catch (error) {
       this.serviceLoading = false;
       if (error.response) {

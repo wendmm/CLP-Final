@@ -92,23 +92,23 @@
                           ></v-text-field>
                         </v-flex>
                         <v-flex xs12>
-                          <v-text-field
-                            v-model="branchCity"
-                            label="City"
+                          <v-select
+                            @change="getCities"
+                            placeholder="Rigion"
+                            :items="rigion"
+                            v-model="selectedRigion"
                             outlined
                             prepend-icon="language"
-                            :rules="branchCityRule"
-                          ></v-text-field>
-                        </v-flex>
-                        <v-flex xs12>
-                          <v-text-field
-                            v-model="branchRegion"
-                            label="Region"
+                          ></v-select>
+                          <v-select
+                            placeholder="City"
+                            :items="cities"
+                            v-model="selectedCity"
                             outlined
                             prepend-icon="book"
-                            :rules="branchRegionRule"
-                          ></v-text-field>
+                          ></v-select>
                         </v-flex>
+
                         <v-flex xs12>
                           <v-text-field
                             v-model="branchTelephone"
@@ -321,6 +321,105 @@ export default {
       allAdmins: [],
       allAdminName: [],
       allBranchsName: [],
+      rigion: [],
+      cities: [],
+
+      allRigions: [
+        {
+          rigion: "Addis Ababa",
+          city: [
+            "Addis Ketema",
+            "Akaki Kality",
+            "Arada",
+            "Bole",
+            "Gullele",
+            "Kirkos",
+            "Kolfe Keranio",
+            "Lemi Kura",
+            "Lideta",
+            "Nifas Silk Lafro",
+            "Yeka",
+          ],
+        },
+        {
+          rigion: "Diredawa",
+          city: ["Diredawa"],
+        },
+
+        {
+          rigion: "Tigray",
+          city: ["Adigrat", "Adiwa", "Axume", "Mekelle", "Shire"],
+        },
+        {
+          rigion: "Afar",
+          city: ["Semera"],
+        },
+        {
+          rigion: "Amhara",
+          city: [
+            "Bahir Dar",
+            "Debre Birhan",
+            "Debre Markos",
+            "Debre Tabore",
+            "Dessie",
+            "Fnote Selam",
+            "Gonder",
+            "Gorgora",
+            "Lalibela",
+            "Woldya",
+          ],
+        },
+        {
+          rigion: "Somalie",
+          city: ["Jigjiga", "Gode", "Dolo Odo", "Mekelle", "Shekoshe"],
+        },
+        {
+          rigion: "Oromiya",
+          city: [
+            "Adama",
+            "Ambo",
+            "Arisi negelle",
+            "Asella",
+            "Ballerobe",
+            "Bishoftu",
+            "Gimbi",
+            "Harromaya",
+            "Holeta",
+            "Jimma",
+            "Nekemt",
+            "Metu",
+            "Shashemene",
+            "Sebeta",
+            "Zeway",
+          ],
+        },
+        {
+          rigion: "Benshangul Gumuz",
+          city: ["Assosa"],
+        },
+        {
+          rigion: "Somalie",
+          city: ["Jigjiga", "Gode", "Dolo Odo", "Shekoshe"],
+        },
+        {
+          rigion: "Southern",
+          city: ["Arba Minch", "Dilla", "Hosahina", "Mizzan", "Sodo"],
+        },
+        {
+          rigion: "Harreri",
+          city: ["Harrar"],
+        },
+        {
+          rigion: "Gambella",
+          city: ["Gambella"],
+        },
+        {
+          rigion: "Sidamo",
+          city: ["Hawaha", "Yirgalem", "Wondo"],
+        },
+      ],
+      selectedRigion: "",
+      selectedCity: "",
       branchNameRule: [
         (v) =>
           /^[a-zA-Z 0-9]{2,32}$/.test(v) ||
@@ -344,6 +443,17 @@ export default {
     };
   },
   methods: {
+    getCities() {
+      this.cities = [];
+      for (let i = 0; i < this.allRigions.length; i++) {
+        if (this.selectedRigion == this.allRigions[i].rigion) {
+          for (let j = 0; j < this.allRigions[i].city.length; j++) {
+            this.cities.push(this.allRigions[i].city[j]);
+          }
+          break;
+        }
+      }
+    },
     addBranchClicked() {
       this.whatToDo = "add";
       this.branchRegOrUpdateTitle = "Branch registration";
@@ -351,7 +461,14 @@ export default {
       this.branchCity = "";
       this.branchRegion = "";
       this.branchTelephone = "";
+
+      this.rigion = [];
+
+      for (let i = 0; i < this.allRigions.length; i++) {
+        this.rigion.push(this.allRigions[i].rigion);
+      }
     },
+
     shiftAdminClicked(item) {
       this.allBranchsName.splice(
         this.allBranchsName.indexOf(
@@ -371,8 +488,8 @@ export default {
           try {
             const branchResponse = await apiService.saveBranchInfo({
               branchName: this.branchName,
-              branchCity: this.branchCity,
-              branchRegion: this.branchRegion,
+              branchCity: this.selectedCity,
+              branchRegion: this.selectedRigion,
               branchTelephone: this.branchTelephone,
             });
             this.allBranchs.push(branchResponse.data.branchInfo);

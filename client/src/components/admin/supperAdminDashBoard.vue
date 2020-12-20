@@ -7,21 +7,31 @@
       class=""
     >
       <p class="headline ml-10 pl-10">Dashboard</p>
-      <div class="white">
-        <v-layout raw wrap>
-          <v-flex xs12 md5 class="green darken-3 ma-2 pt-3">
-   <p class="white--text text-center headline">
-              No of active customers
-            </p>
-            <v-divider class="white"> </v-divider>
-            <p class="text-center white--text display-4 pt-10">253</p>
+      <div class="white pa-3" id="dashBoard">
+        <v-layout raw wrap justify-space-around>
+          <v-flex xs12 md4 class="pt-3 ma-2">
+            <apexchart
+              type="bar"
+              :options="options"
+              :series="series"
+              width="100%"
+            ></apexchart>
           </v-flex>
-          <v-flex xs12 md5 class="blue darken-3 ma-2 pt-3">
-            <p class="white--text text-center headline">
-              New registered customers in this week
-            </p>
-            <v-divider class="white"> </v-divider>
-            <p class="text-center white--text display-4 pt-10">102</p>
+          <v-flex xs12 md4 class="pt-3 ma-2">
+            <apexchart
+              type="line"
+              :options="options"
+              :series="series"
+              width="100%"
+            ></apexchart>
+          </v-flex>
+          <v-flex xs12 md4 class="pt-3 ma-2">
+            <apexchart
+              width="100%"
+              type="pie"
+              :options="chartOptions"
+              :series="series2"
+            ></apexchart>
           </v-flex>
         </v-layout>
       </div>
@@ -38,7 +48,30 @@
 <script>
 export default {
   data() {
-    return {};
+    return {
+      options: {
+        chart: {
+          id: "vuechart-example",
+        },
+        xaxis: {
+          categories: [1991, 1992, 1993, 1994, 1995, 1996, 1997, 1998],
+        },
+      },
+      series: [
+        {
+          name: "bar",
+          data: [120, 40, 45, 50, 49, 60, 70, 91],
+        },
+      ],
+
+      series2: [204, 55],
+      chartOptions: {
+        labels: ["Male", "Female"],
+        colors: ["#00ff00", "#ff4000"],
+      },
+    };
   },
 };
 </script>
+<style scoped>
+</style>

@@ -10,14 +10,12 @@ module.exports = {
 		offerConnection.offerTitle = req.body.offerTitle;
 		offerConnection.serviceName = req.body.serviceName;
 		offerConnection.servicePrice = req.body.servicePrice;
-		offerConnection.selectedLevel = req.body.selectedLevel;
 		offerConnection.selectedServiceCatagory = req.body.selectedServiceCatagory;
 		offerConnection.selectedServiceSubCatagory =
 			req.body.selectedServiceSubCatagory;
 		offerConnection.serviceImage = req.body.serviceImage;
 		offerConnection.discountPercent = req.body.discountPercent;
 		offerConnection.discountPrice = req.body.discountPrice.toFixed(2);
-		offerConnection.numberOfPeople = req.body.numberOfPeople;
 		offerConnection.startDate = req.body.startDate;
 		offerConnection.endDate = req.body.endDate;
 		offerConnection.like = 0;
@@ -74,13 +72,11 @@ module.exports = {
 			offerTitle: req.body.offerTitle,
 			serviceName: req.body.serviceName,
 			servicePrice: req.body.servicePrice,
-			selectedLevel: req.body.selectedLevel,
 			selectedServiceCatagory: req.body.selectedServiceCatagory,
 			selectedServiceSubCatagory: req.body.selectedServiceSubCatagory,
 			serviceImage: req.body.serviceImage,
 			discountPercent: req.body.discountPercent,
 			discountPrice: req.body.discountPrice.toFixed(2),
-			numberOfPeople: req.body.numberOfPeople,
 			startDate: req.body.startDate,
 			endDate: req.body.endDate,
 		};

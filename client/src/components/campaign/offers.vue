@@ -1,26 +1,26 @@
 <template>
   <div>
     <div v-if="$store.state.isAdminLoggedIn" class="white container pt-3">
-      <p>
+      <span>
         <span class="headline">Offers/</span>
         <span class="grey--text">&nbsp;List of offers</span>
-        <br />
-        <span
+
+        <p
           v-if="offerRegistrationSuccess"
           class="ml-10 green--text text-center"
-          >{{ offerRegistrationSuccess }}</span
         >
-        <span
+          {{ offerRegistrationSuccess }}
+        </p>
+        <p
           v-if="offerRegistrationError"
           class="ml-10 pl-10 red--text text-center"
-          >{{ offerRegistrationError }}</span
         >
-        <span
-          v-if="getAllOfferError"
-          class="ml-10 pl-10 red--text text-center"
-          >{{ getAllOfferError }}</span
-        >
-      </p>
+          {{ offerRegistrationError }}
+        </p>
+        <p v-if="getAllOfferError" class="ml-10 pl-10 red--text text-center">
+          {{ getAllOfferError }}
+        </p>
+      </span>
       <div class="text-center">
         <v-btn text :loading="offerLoading" v-if="offerLoading">
           <span>loading...</span>
@@ -108,15 +108,6 @@
                           <v-flex xs12 md4 class="pa-2">
                             <v-select
                               denses
-                              placeholder="Select Level"
-                              v-model="selectedLevel"
-                              :items="levels"
-                              prepend-icon="signal_cellular_alt"
-                            ></v-select>
-                          </v-flex>
-                          <v-flex xs12 md4 class="pa-2">
-                            <v-select
-                              denses
                               label="Choose service name"
                               v-model="selectedServiceName"
                               :items="allServiceNames"
@@ -144,7 +135,7 @@
                             >
                             </v-text-field>
                           </v-flex>
-                          <v-flex xs12 md4 class="pa-2">
+                          <v-flex xs12 md4 class="pa-2" v-if="servicePrice">
                             <p
                               class="text-center mt-5 red--text"
                               style="font-size: 20px"
@@ -183,6 +174,7 @@
                               ></v-date-picker>
                             </v-menu>
                           </v-flex>
+
                           <v-flex xs12 md4 class="pa-2">
                             <v-menu
                               v-model="endMenu"
@@ -209,18 +201,7 @@
                             </v-menu>
                           </v-flex>
 
-                          <v-flex xs12 md4 class="pa-2">
-                            <v-text-field
-                              v-model="limitedNumberPeople"
-                              label="Limit number of peoples"
-                              type="number"
-                              min="0"
-                              prepend-icon="wc"
-                            >
-                            </v-text-field>
-                          </v-flex>
-
-                          <v-flex xs12 md4 class="pa-2">
+                          <v-flex xs12 md4 class="pa-2 mt-8">
                             <v-btn
                               dark
                               text
@@ -309,12 +290,10 @@ export default {
 
     search: "",
     offerTitle: "",
-    selectedLevel: "",
     selectedServiceName: "",
     servicePrice: "",
     discountRate: 0,
     priceAfterDiscount: "",
-    limitedNumberPeople: 0,
     serviceImage: "",
     selectedServiceCatagory: "",
     selectedServiceSubCatagory: "",
@@ -374,16 +353,6 @@ export default {
         value: "discountPrice",
       },
       {
-        text: "Offered Level",
-
-        value: "selectedLevel",
-      },
-      {
-        text: "No People",
-
-        value: "numberOfPeople",
-      },
-      {
         text: "Actions",
 
         value: "actions",
@@ -440,70 +409,19 @@ export default {
       this.offerRegistrationSuccess = "";
       if (this.checkValidity) {
         if (this.selectedServiceName != "") {
-          if (this.discountRate > 0 && this.discountRate <= 100) {
-            if (this.limitedNumberPeople < 0) {
-              this.offerRegistrationError =
-                "Number of people can not be negative";
-            } else {
-              if (this.whatToDo == "add") {
-                if (
-                  this.startDate <= this.endDate &&
-                  this.startDate >= new Date().toISOString().substr(0, 10) &&
-                  this.endDate >= new Date().toISOString().substr(0, 10)
-                ) {
-                  this.offerRegistrationLoading = true;
-                  try {
-                    const offerResponsee = await apiService.saveOffer({
-                      offerTitle: this.offerTitle,
-                      serviceName: this.selectedServiceName,
-                      servicePrice: this.servicePrice,
-                      selectedLevel: this.selectedLevel,
-                      selectedServiceCatagory: this.selectedServiceCatagory,
-                      selectedServiceSubCatagory: this
-                        .selectedServiceSubCatagory,
-                      serviceImage: this.serviceImage,
-                      discountPercent: this.discountRate,
-                      discountPrice:
-                        this.servicePrice -
-                        (this.discountRate / 100) * this.servicePrice,
-
-                      numberOfPeople: this.limitedNumberPeople,
-                      startDate: this.startDate,
-                      endDate: this.endDate,
-                    });
-
-                    this.getAllOffers.push(offerResponsee.data.offer);
-                    this.offerRegistrationSuccess =
-                      "Offer registered successfully!";
-                    this.offerRegistrationError = "";
-                    this.offerRegistrationLoading = false;
-                    this.offerDialog = false;
-                  } catch (err) {
-                    this.offerRegistrationLoading = false;
-                    this.offerRegistrationSuccess = "";
-                    if (err.response) {
-                      if (err.response.data.error == 0) {
-                        this.$store.dispatch("setAdmin", "");
-                        this.$store.dispatch("setAdminToken", "");
-                        this.$store.dispatch("setSession", false);
-                        this.$router.push({ name: "adminLoginPage" });
-                      } else
-                        this.offerRegistrationError = err.response.data.error;
-                    } else
-                      this.offerRegistrationError =
-                        "Connection to server failed";
-                  }
-                } else
-                  this.offerRegistrationError =
-                    "Please make sure start date and end date are correct";
-              } else if (this.whatToDo == "update") {
+          if (this.discountRate >= 0 && this.discountRate <= 100) {
+            if (this.whatToDo == "add") {
+              if (
+                this.startDate <= this.endDate &&
+                this.startDate >= new Date().toISOString().substr(0, 10) &&
+                this.endDate >= new Date().toISOString().substr(0, 10)
+              ) {
                 this.offerRegistrationLoading = true;
                 try {
-                  await apiService.updateOfferInfo({
+                  const offerResponsee = await apiService.saveOffer({
                     offerTitle: this.offerTitle,
                     serviceName: this.selectedServiceName,
                     servicePrice: this.servicePrice,
-                    selectedLevel: this.selectedLevel,
                     selectedServiceCatagory: this.selectedServiceCatagory,
                     selectedServiceSubCatagory: this.selectedServiceSubCatagory,
                     serviceImage: this.serviceImage,
@@ -512,37 +430,13 @@ export default {
                       this.servicePrice -
                       (this.discountRate / 100) * this.servicePrice,
 
-                    numberOfPeople: this.limitedNumberPeople,
                     startDate: this.startDate,
                     endDate: this.endDate,
-                    offerId: this.offerSelectedItem._id,
                   });
 
-                  Object.assign(
-                    this.getAllOffers[
-                      this.getAllOffers.indexOf(this.offerSelectedItem)
-                    ],
-                    {
-                      offerTitle: this.offerTitle,
-                      serviceName: this.selectedServiceName,
-                      servicePrice: this.servicePrice,
-                      selectedLevel: this.selectedLevel,
-                      selectedServiceCatagory: this.selectedServiceCatagory,
-                      selectedServiceSubCatagory: this
-                        .selectedServiceSubCatagory,
-                      serviceImage: this.serviceImage,
-                      discountPercent: this.discountRate,
-                      discountPrice:
-                        this.servicePrice -
-                        (this.discountRate / 100) * this.servicePrice,
-
-                      numberOfPeople: this.limitedNumberPeople,
-                      startDate: this.startDate,
-                      endDate: this.endDate,
-                    }
-                  );
-
-                  this.offerRegistrationSuccess = "Offer updated successfully!";
+                  this.getAllOffers.push(offerResponsee.data.offer);
+                  this.offerRegistrationSuccess =
+                    "Offer registered successfully!";
                   this.offerRegistrationError = "";
                   this.offerRegistrationLoading = false;
                   this.offerDialog = false;
@@ -560,6 +454,64 @@ export default {
                   } else
                     this.offerRegistrationError = "Connection to server failed";
                 }
+              } else
+                this.offerRegistrationError =
+                  "Please make sure start date and end date are correct";
+            } else if (this.whatToDo == "update") {
+              this.offerRegistrationLoading = true;
+              try {
+                await apiService.updateOfferInfo({
+                  offerTitle: this.offerTitle,
+                  serviceName: this.selectedServiceName,
+                  servicePrice: this.servicePrice,
+                  selectedServiceCatagory: this.selectedServiceCatagory,
+                  selectedServiceSubCatagory: this.selectedServiceSubCatagory,
+                  serviceImage: this.serviceImage,
+                  discountPercent: this.discountRate,
+                  discountPrice:
+                    this.servicePrice -
+                    (this.discountRate / 100) * this.servicePrice,
+                  startDate: this.startDate,
+                  endDate: this.endDate,
+                  offerId: this.offerSelectedItem._id,
+                });
+
+                Object.assign(
+                  this.getAllOffers[
+                    this.getAllOffers.indexOf(this.offerSelectedItem)
+                  ],
+                  {
+                    offerTitle: this.offerTitle,
+                    serviceName: this.selectedServiceName,
+                    servicePrice: this.servicePrice,
+                    selectedServiceCatagory: this.selectedServiceCatagory,
+                    selectedServiceSubCatagory: this.selectedServiceSubCatagory,
+                    serviceImage: this.serviceImage,
+                    discountPercent: this.discountRate,
+                    discountPrice:
+                      this.servicePrice -
+                      (this.discountRate / 100) * this.servicePrice,
+                    startDate: this.startDate,
+                    endDate: this.endDate,
+                  }
+                );
+
+                this.offerRegistrationSuccess = "Offer updated successfully!";
+                this.offerRegistrationError = "";
+                this.offerRegistrationLoading = false;
+                this.offerDialog = false;
+              } catch (err) {
+                this.offerRegistrationLoading = false;
+                this.offerRegistrationSuccess = "";
+                if (err.response) {
+                  if (err.response.data.error == 0) {
+                    this.$store.dispatch("setAdmin", "");
+                    this.$store.dispatch("setAdminToken", "");
+                    this.$store.dispatch("setSession", false);
+                    this.$router.push({ name: "adminLoginPage" });
+                  } else this.offerRegistrationError = err.response.data.error;
+                } else
+                  this.offerRegistrationError = "Connection to server failed";
               }
             }
           } else
@@ -631,12 +583,10 @@ export default {
       this.offerTitle = item.offerTitle;
       this.selectedServiceName = item.serviceName;
       this.servicePrice = item.servicePrice;
-      this.selectedLevel = item.selectedLevel;
       this.selectedServiceCatagory = item.selectedServiceCatagory;
       this.selectedServiceSubCatagory = item.selectedServiceSubCatagory;
       this.serviceImage = item.serviceImage;
       this.discountRate = item.discountPercent;
-      this.limitedNumberPeople = item.numberOfPeople;
       this.startDate = item.startDate;
       this.endDate = item.endDate;
 
