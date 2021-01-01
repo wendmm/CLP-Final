@@ -511,8 +511,8 @@ export default {
           try {
             await apiService.updateBranchInfo({
               branchName: this.branchName,
-              branchCity: this.branchCity,
-              branchRegion: this.branchRegion,
+              branchCity: this.selectedCity,
+              branchRegion: this.selectedRigion,
               branchTelephone: this.branchTelephone,
               branchId: this.branchSelectedItem._id,
             });
@@ -523,8 +523,8 @@ export default {
               this.allBranchs[this.allBranchs.indexOf(this.branchSelectedItem)],
               {
                 branchName: this.branchName,
-                branchCity: this.branchCity,
-                branchRegion: this.branchRegion,
+                branchCity: this.selectedCity,
+                branchRegion: this.selectedRigion,
                 branchTelephone: this.branchTelephone,
               }
             );
@@ -596,13 +596,21 @@ export default {
     editBranch(item) {
       this.whatToDo = "update";
 
+      this.rigion = [];
+
+      for (let i = 0; i < this.allRigions.length; i++) {
+        this.rigion.push(this.allRigions[i].rigion);
+      }
+
       this.branchName = item.branchName;
-      this.branchCity = item.branchCity;
-      this.branchRegion = item.branchRegion;
+      this.selectedCity = item.branchCity;
+      this.selectedRigion = item.branchRegion;
       this.branchTelephone = item.branchTelephone;
       this.branchRegOrUpdateTitle = "Update branch";
       this.branchDialog = true;
       this.branchSelectedItem = item;
+
+      this.getCities();
     },
 
     async deleteBranch(item) {

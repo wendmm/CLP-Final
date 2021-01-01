@@ -64,7 +64,7 @@
                 </v-btn>
               </v-flex>
               <v-flex xs12 md2>
-                <v-dialog v-model="serviceDialog" max-width="1000px">
+                <v-dialog v-model="serviceDialog" max-width="800px">
                   <template v-slot:activator="{ on }">
                     <v-btn
                       text
@@ -84,9 +84,14 @@
                         serviceRegUpdatePopupTitle
                       }}</span>
                       <v-spacer></v-spacer>
-                      <serviceCatagory
-                        :listOfServiceCatagory="listOfServiceCatagory"
-                      />
+
+                      <v-btn
+                        text
+                        class="grey lighten-4 pl-10 pr-10 ml-6 mt-2"
+                        @click="clearServiceRegistrationForm"
+                      >
+                        <span class="red--text text-capitalize">Clear</span>
+                      </v-btn>
                       <v-btn
                         text
                         class="grey lighten-4 pl-10 pr-10 ml-6 mt-2"
@@ -95,13 +100,6 @@
                         <span class="text-capitalize">
                           <v-icon left class="red--text">close</v-icon>close
                         </span>
-                      </v-btn>
-                      <v-btn
-                        text
-                        class="grey lighten-4 pl-10 pr-10 ml-6 mt-2"
-                        @click="clearServiceRegistrationForm"
-                      >
-                        <span class="red--text text-capitalize">Clear</span>
                       </v-btn>
                     </v-card-title>
                     <v-card-text>
@@ -132,12 +130,15 @@
                               placeholder="Select sub catagory"
                               v-model="selectedServiceSubCatagory"
                               :items="subCatagoryName"
+                              @change="getServices"
                             ></v-select>
-                            <v-text-field
-                              label="Service Name"
-                              v-model="serviceName"
-                              :rules="serviceNameValidation"
-                            ></v-text-field>
+
+                            <v-select
+                              placeholder="Select service"
+                              v-model="selectedServiceName"
+                              :items="services"
+                              @change="getServicePrice"
+                            ></v-select>
                             <v-text-field
                               label="Price"
                               v-model="servicePrice"
@@ -154,8 +155,8 @@
                               v-model="serviceDescription"
                               :rules="serviceDescriptionValidation"
                             ></v-textarea>
-                            <v-layout row wrap>
-                              <v-flex xs12 md5 class="mt-6">
+                            <v-layout row wrap justify-space-around>
+                              <v-flex xs12 md4 class="mt-6">
                                 <div
                                   class="grey lighten-2 ma-2"
                                   id="imageUploadBox"
@@ -173,7 +174,7 @@
                                   </p>
                                 </div>
                               </v-flex>
-                              <v-flex xs12 md5 class="mt-0">
+                              <v-flex xs12 md4 class="mt-0">
                                 <v-img
                                   cover
                                   v-if="
@@ -181,7 +182,7 @@
                                   "
                                   :src="serviceImagePreview"
                                   contain
-                                  height="150"
+                                  height="100"
                                 ></v-img>
                                 <v-img
                                   cover
@@ -288,19 +289,20 @@
 
 <script>
 import apiService from "../../services/apiService";
-import serviceCatagory from "../service/serviceCatagory";
+// import serviceCatagory from "../service/serviceCatagory";
+import axios from "axios";
 export default {
-  components: {
-    serviceCatagory,
-  },
+  // components: {
+  //   serviceCatagory,
+  // },
   data() {
     return {
       selectedServiceCatagory: "",
       selectedServiceSubCatagory: "",
-      serviceName: "",
       servicePrice: "",
       serviceDescription: "",
       serviceImage: "",
+      services: [],
 
       isEditServiceClicked: false,
       isRegOrUpdate: "",
@@ -308,6 +310,7 @@ export default {
       editedIndex: "",
       serviceImageToBinary: "",
       serviceImagePreview: "",
+      selectedServiceName: "",
       serviceRegUpdatePopupTitle: "",
       checkServiceInputValidity: false,
       loading: false,
@@ -328,7 +331,7 @@ export default {
       ],
       servicePriceValidation: [
         (input) =>
-          /^[0-9]{1,100}[.]{1}[0-9]{2}$/.test(input) ||
+          /^[0-9.]{1,100}$/.test(input) ||
           "Price must be numeric and with two decimal place",
       ],
       serviceDescriptionValidation: [
@@ -385,7 +388,7 @@ export default {
           const serviceResponse = await apiService.serviceRegistration({
             selectedServiceCatagory: this.selectedServiceCatagory,
             selectedServiceSubCatagory: this.selectedServiceSubCatagory,
-            serviceName: this.serviceName,
+            serviceName: this.selectedServiceName,
             servicePrice: this.servicePrice,
             serviceDescription: this.serviceDescription,
             serviceImage: this.serviceImage,
@@ -411,7 +414,7 @@ export default {
               Object.assign(this.getAllServices[this.editedIndex], {
                 selectedServiceCatagory: this.selectedServiceCatagory,
                 selectedServiceSubCatagory: this.selectedServiceSubCatagory,
-                serviceName: this.serviceName,
+                serviceName: this.selectedServiceName,
                 servicePrice: this.servicePrice,
                 serviceDescription: this.serviceDescription,
                 serviceImage: this.serviceImage,
@@ -460,61 +463,166 @@ export default {
       this.serviceRegistrationSuccess = "";
       this.serviceRegistrationError = "";
     },
-    addServicePopup() {
+    async addServicePopup() {
       this.listOfServiceCatagory = "";
       this.isRegOrUpdate = "register";
       this.serviceImagePreview = "";
       this.selectedServiceCatagory = "";
       this.selectedServiceSubCatagory = "";
-      this.serviceName = "";
+      this.selectedServiceName = "";
       this.servicePrice = "";
       this.serviceDescription = "";
       this.serviceImage = "";
       this.serviceRegUpdatePopupTitle = "Add Service";
       this.loading = false;
+      this.catagoryName = [];
+
       this.getAllCatagories();
     },
+
+    //API to fetch data from HMS
     async getAllCatagories() {
       try {
-        this.catagoryName = [];
-        const catagoryResponse = await apiService.getAllCatagory();
-        this.listOfServiceCatagory = catagoryResponse.data.allCatagories;
-        for (let i = 0; i < catagoryResponse.data.allCatagories.length; i++) {
-          this.catagoryName.push(
-            catagoryResponse.data.allCatagories[i].catagoryName
-          );
-        }
+        var result = await axios({
+          method: "POST",
+          url: "http://localhost:5000/graphql",
+          data: {
+            query: `
+             {
+               getAllCatagory{
+                   catagory_name,
+                    subcatagory{
+                      subcatagory_name,
+                      service{
+                        serviceName,
+                        servicePrice
+                      }
+                    }
+                 }
+              }
+          
+            `,
+          },
+        });
+
+        this.listOfServiceCatagory = result.data.data.getAllCatagory;
       } catch (err) {
-        this.serviceRegistrationSuccess = "";
-        if (err.response) {
-          if (err.response.data.error == 0) {
-            this.$store.dispatch("setAdmin", "");
-            this.$store.dispatch("setAdminToken", "");
-            this.$store.dispatch("setSession", false);
-            this.$router.push({ name: "adminLoginPage" });
-          } else this.serviceRegistrationError = err.response.data.error;
-        } else this.serviceRegistrationError = "Connection to server failed";
-        setTimeout(() => {
-          this.serviceRegistrationError = "";
-        }, 3000);
+        alert(err);
+      }
+
+      for (let i = 0; i < this.listOfServiceCatagory.length; i++) {
+        this.catagoryName.push(this.listOfServiceCatagory[i].catagory_name);
       }
     },
+    // async getAllCatagories() {
+    //   try {
+    //     this.catagoryName = [];
+    //     const catagoryResponse = await apiService.getAllCatagory();
+    //     this.listOfServiceCatagory = catagoryResponse.data.allCatagories;
+    //     for (let i = 0; i < catagoryResponse.data.allCatagories.length; i++) {
+    //       this.catagoryName.push(
+    //         catagoryResponse.data.allCatagories[i].catagoryName
+    //       );
+    //     }
+    //   } catch (err) {
+    //     this.serviceRegistrationSuccess = "";
+    //     if (err.response) {
+    //       if (err.response.data.error == 0) {
+    //         this.$store.dispatch("setAdmin", "");
+    //         this.$store.dispatch("setAdminToken", "");
+    //         this.$store.dispatch("setSession", false);
+    //         this.$router.push({ name: "adminLoginPage" });
+    //       } else this.serviceRegistrationError = err.response.data.error;
+    //     } else this.serviceRegistrationError = "Connection to server failed";
+    //     setTimeout(() => {
+    //       this.serviceRegistrationError = "";
+    //     }, 3000);
+    //   }
+    // },
     getSubCatagories() {
       this.subCatagoryName = [];
 
       for (let i = 0; i < this.listOfServiceCatagory.length; i++) {
         if (
           this.selectedServiceCatagory ==
-          this.listOfServiceCatagory[i].catagoryName
+          this.listOfServiceCatagory[i].catagory_name
         ) {
           for (
             let k = 0;
-            k < this.listOfServiceCatagory[i].subCatagory.length;
+            k < this.listOfServiceCatagory[i].subcatagory.length;
             k++
           ) {
             this.subCatagoryName.push(
-              this.listOfServiceCatagory[i].subCatagory[k].subCatagoryName
+              this.listOfServiceCatagory[i].subcatagory[k].subcatagory_name
             );
+          }
+        }
+      }
+    },
+
+    getServices() {
+      this.services = [];
+      for (let i = 0; i < this.listOfServiceCatagory.length; i++) {
+        if (
+          this.selectedServiceCatagory ==
+          this.listOfServiceCatagory[i].catagory_name
+        ) {
+          for (
+            let k = 0;
+            k < this.listOfServiceCatagory[i].subcatagory.length;
+            k++
+          ) {
+            if (
+              this.selectedServiceSubCatagory ==
+              this.listOfServiceCatagory[i].subcatagory[k].subcatagory_name
+            ) {
+              for (
+                let j = 0;
+                j < this.listOfServiceCatagory[i].subcatagory[k].service.length;
+                j++
+              ) {
+                this.services.push(
+                  this.listOfServiceCatagory[i].subcatagory[k].service[j]
+                    .serviceName
+                );
+              }
+            }
+          }
+        }
+      }
+    },
+
+    getServicePrice() {
+      for (let i = 0; i < this.listOfServiceCatagory.length; i++) {
+        if (
+          this.selectedServiceCatagory ==
+          this.listOfServiceCatagory[i].catagory_name
+        ) {
+          for (
+            let k = 0;
+            k < this.listOfServiceCatagory[i].subcatagory.length;
+            k++
+          ) {
+            if (
+              this.selectedServiceSubCatagory ==
+              this.listOfServiceCatagory[i].subcatagory[k].subcatagory_name
+            ) {
+              for (
+                let j = 0;
+                j < this.listOfServiceCatagory[i].subcatagory[k].service.length;
+                j++
+              ) {
+                if (
+                  this.selectedServiceName ==
+                  this.listOfServiceCatagory[i].subcatagory[k].service[j]
+                    .serviceName
+                ) {
+                  this.servicePrice = this.listOfServiceCatagory[i].subcatagory[
+                    k
+                  ].service[j].servicePrice;
+                }
+              }
+            }
           }
         }
       }
@@ -526,7 +634,7 @@ export default {
       this.serviceRegUpdatePopupTitle = "Edit Service";
       this.selectedServiceCatagory = item.selectedServiceCatagory;
       this.selectedServiceSubCatagory = item.selectedServiceSubCatagory;
-      this.serviceName = item.serviceName;
+      this.selectedServiceName = item.serviceName;
       this.servicePrice = item.servicePrice;
       this.serviceDescription = item.serviceDescription;
       this.serviceImage = item.serviceImage;
@@ -535,6 +643,7 @@ export default {
       this.isEditServiceClicked = true;
       await this.getAllCatagories();
       await this.getSubCatagories();
+      await this.getServices();
     },
 
     deleteService(item) {

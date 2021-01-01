@@ -144,6 +144,30 @@ export default {
 	deleteBranchAdmin(admindeleteIds) {
 		return Api().post("deleteBranchAdmin", admindeleteIds);
 	},
+	getLastCheckDate() {
+		return Api().get("getLastCheckDate");
+	},
+	updateLastCheckDate(dateInfo) {
+		return Api().post("/updateLastCheckDate", dateInfo);
+	},
+	addingPoint(transactionInfo) {
+		return Api().post("addingPoint", transactionInfo);
+	},
+
+	countCustomers() {
+		return Api().get("countCustomers");
+	},
+	countRewards() {
+		return Api().get("countRewards");
+	},
+
+	countOffers() {
+		return Api().get("countOffers");
+	},
+
+	getAllCustomersFromSupper() {
+		return Api().get("getAllCustomersFromSupper");
+	},
 	uploadImage(adminPicture) {
 		return Api().post("imageUpload", adminPicture);
 	},

@@ -1,10 +1,16 @@
 const mongoose = require("mongoose");
 const branchConnection = require("../database/branchSchema");
 const adminConnection = require("../database/adminSchema");
+const lastDateConnection = require("../database/lastCheckedDate");
+
+const clientRequireConnection = require("../database/clientSchema");
+const purchasePointRuleConnection = require("../database/purchasePointRuleSchema");
+
 const { compareSync } = require("bcrypt");
 const passwordEncription = require("../Encription/passwordEncriptionComparison");
 
 const branchModelConnection = mongoose.model("branchCollection");
+const transactionModelConnection = mongoose.model("transactionCollection");
 
 function generateRandomNumber(digit) {
 	return (Math.floor(Math.random() * digit) + digit).toString().substring(1);
@@ -481,6 +487,211 @@ module.exports = {
 			);
 		} catch (err) {
 			return res.status(403).send({
+				error: err,
+			});
+		}
+	},
+
+	async getLastCheckDate(req, res) {
+		try {
+			await lastDateConnection.find((err, result) => {
+				if (err) {
+					return res.status(403).send({
+						error: err,
+					});
+				} else if (result == "") {
+					return res.status(404).send({
+						error: "error when fetching",
+					});
+				} else {
+					res.send({
+						result: result,
+					});
+				}
+			});
+		} catch (err) {
+			res.status(403).send({
+				error: err,
+			});
+		}
+	},
+
+	async updateLastCheckDate(req, res) {
+		const lastDateId = {
+			_id: req.body.lastCkeckDateId,
+		};
+
+		const lastDateUpdate = {
+			lastCheckDate: req.body.dateNow,
+		};
+
+		try {
+			await lastDateConnection.updateOne(
+				lastDateId,
+				lastDateUpdate,
+				(err, updateResult) => {
+					if (err)
+						return res.status(403).send({
+							error: err,
+						});
+					else if (updateResult.nModified == 1) {
+						res.send({
+							updateResult: updateResult,
+						});
+					} else
+						return res.status(404).send({
+							error: "last date not updated",
+						});
+				}
+			);
+		} catch (err) {
+			return res.status(403).send({
+				error: err,
+			});
+		}
+	},
+
+	async addingPoint(req, res) {
+		const customerId = {
+			customerId: req.body.customerId,
+		};
+
+		const transactionConn = new transactionModelConnection();
+		transactionConn.customerId = req.body.customerId;
+		transactionConn.branch = req.body.branch;
+		transactionConn.item = req.body.item;
+		transactionConn.quantity = req.body.quantity;
+		transactionConn.invoice = req.body.invoice;
+		transactionConn.transactionDate = req.body.transactionDate;
+
+		try {
+			await transactionConn.save((err, transactionInfo) => {
+				if (err)
+					return res.status(403).send({
+						error: " some thing went wrong",
+					});
+				else if (transactionInfo != null) {
+					clientRequireConnection.findOne(customerId, (err, clientInfo) => {
+						if (err)
+							return res.status(404).send({
+								error: "Customer does not exist try again",
+							});
+						if (clientInfo == null) {
+							return res.status(404).send({
+								error: "Customer does not exist try again",
+							});
+						} else {
+							const serviceName = {
+								serviceName: req.body.item,
+							};
+							try {
+								purchasePointRuleConnection.findOne(
+									serviceName,
+									(err, serviceInfo) => {
+										if (err)
+											return res.status(404).send({
+												error: "serviece point rule not assigned",
+											});
+										if (serviceInfo == null) {
+											return res.status(404).send({
+												error: "service point rule does not exist try again",
+											});
+										} else {
+											const points = {
+												points:
+													clientInfo.points +
+													serviceInfo.point * req.body.quantity,
+											};
+
+											try {
+												clientRequireConnection.updateOne(
+													customerId,
+													points,
+													(err, pointResult) => {
+														if (err)
+															return res.status(403).send({
+																error: err,
+															});
+														else if (pointResult.nModified == 1) {
+															res.send({
+																pointResult: pointResult,
+															});
+														} else
+															return res.status(404).send({
+																error: "no point is add",
+															});
+													}
+												);
+											} catch (err) {
+												return res.status(403).send({
+													error: err,
+												});
+											}
+										}
+									}
+								);
+							} catch (err) {
+								res.status(400).send({
+									error: err,
+								});
+							}
+						}
+					});
+				} else
+					return res.status(403).send({
+						error: " transaction not add",
+					});
+			});
+		} catch (err) {
+			res.status(400).send({
+				error: err,
+			});
+		}
+	},
+
+	async countCustomers(req, res) {
+		try {
+			await clientRequireConnection.countDocuments((err, result) => {
+				if (err) {
+					return res.status(403).send({
+						error: err,
+					});
+				} else if (result == 0) {
+					return res.status(404).send({
+						error: "error when counting",
+					});
+				} else {
+					res.send({
+						result: result,
+					});
+				}
+			});
+		} catch (err) {
+			res.status(403).send({
+				error: err,
+			});
+		}
+	},
+
+	async getAllCustomersFromSupper(req, res) {
+		try {
+			await clientRequireConnection.find((err, allCustomers) => {
+				if (err) {
+					return res.status(403).send({
+						error: err,
+					});
+				} else if (allCustomers == "") {
+					return res.status(404).send({
+						error: "There is no customer",
+					});
+				} else {
+					res.send({
+						allCustomers: allCustomers,
+					});
+				}
+			});
+		} catch (err) {
+			res.status(403).send({
 				error: err,
 			});
 		}

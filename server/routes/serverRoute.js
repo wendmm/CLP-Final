@@ -109,6 +109,7 @@ module.exports = (app) => {
 	app.post("/getProfileImage", clientController.getProfileImage);
 	app.post("/updateClient", clientController.updateClient);
 	app.get("/getAllCustomers", clientController.getAllCustomers);
+	app.post("/updateLike", offerController.updateLike);
 
 	//supper admin
 	app.post(
@@ -140,5 +141,33 @@ module.exports = (app) => {
 		"/deleteBranchAdmin",
 		isAuthenticated,
 		supperAdminController.deleteBranchAdmin
+	);
+
+	app.get(
+		"/getLastCheckDate",
+		isAuthenticated,
+		supperAdminController.getLastCheckDate
+	);
+
+	app.post(
+		"/updateLastCheckDate",
+		isAuthenticated,
+		supperAdminController.updateLastCheckDate
+	);
+
+	app.post("/addingPoint", isAuthenticated, supperAdminController.addingPoint);
+
+	app.get("/countRewards", isAuthenticated, rewardController.countRewards);
+	app.get("/countOffers", isAuthenticated, offerController.countOffers);
+	app.get(
+		"/getAllCustomersFromSupper",
+		isAuthenticated,
+		supperAdminController.getAllCustomersFromSupper
+	);
+
+	app.get(
+		"/countCustomers",
+		isAuthenticated,
+		supperAdminController.countCustomers
 	);
 };

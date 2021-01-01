@@ -22,3 +22,5 @@ require("./otherPointRuleSchema");
 require("./rewardSchema");
 require("./levelSchema");
 require("./clientSchema");
+require("./lastCheckedDate");
+require("./transactionSchema");

@@ -48,6 +48,7 @@ module.exports = {
 		clientConnection.points = 0;
 		clientConnection.totalPoints = 0;
 		clientConnection.level = "";
+
 		clientConnection.registeredDate = Date.now();
 		clientConnection.isReferred = false;
 		clientConnection.activationCode = confirmationCode;
@@ -56,6 +57,7 @@ module.exports = {
 		clientConnection.password = passwordEncription.passwordEncription(
 			req.body.password
 		);
+		clientConnection.customerId = req.body.customerId;
 
 		try {
 			await clientConnection.save((err, client) => {

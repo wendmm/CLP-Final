@@ -34,6 +34,7 @@ var clientSchema = new mongoose.Schema({
 	isReferred: Boolean,
 	activationCode: String,
 	profileImage: String,
+	customerId: Number,
 });
 var clientSchema = mongoose.model("clientCollection", clientSchema);
 module.exports = clientSchema;

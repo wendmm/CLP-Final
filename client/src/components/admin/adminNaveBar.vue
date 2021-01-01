@@ -26,7 +26,10 @@
       <div class="hidden-md-and-up">
         <v-menu offset-y>
           <template v-slot:activator="{ on }">
-            <v-app-bar-nav-icon class="blue text-capitalize" v-on="on">
+            <v-app-bar-nav-icon
+              class="orange darken-4 text-capitalize"
+              v-on="on"
+            >
               <span class="white--text">
                 <v-icon>more_vert</v-icon>
               </span>
@@ -100,7 +103,10 @@
       <div class="hidden-md-and-up">
         <v-menu offset-y>
           <template v-slot:activator="{ on }">
-            <v-app-bar-nav-icon class="blue text-capitalize" v-on="on">
+            <v-app-bar-nav-icon
+              class="orange darken-4 text-capitalize"
+              v-on="on"
+            >
               <span class="white--text">
                 <v-icon>more_vert</v-icon>
               </span>
@@ -407,12 +413,12 @@
           id="sideBarBtns"
         >
           <dt class="white--text pl-4 pt-2 pb-2 text-capitalize">
-            <v-icon class="blue--text" left>home</v-icon>Dashboard
+            <v-icon class="yellow--text" left>home</v-icon>Dashboard
           </dt>
         </v-btn>
         <v-btn text @click="navigator({ name: 'branch' })" id="sideBarBtns">
           <dt class="white--text pl-4 pt-2 pb-2 text-capitalize">
-            <v-icon class="blue--text" left>home</v-icon>Branch
+            <v-icon class="yellow--text" left>device_hub</v-icon>Branch
           </dt>
         </v-btn>
         <v-btn
@@ -421,7 +427,7 @@
           id="sideBarBtns"
         >
           <dt class="white--text pl-4 pt-2 pb-2 text-capitalize">
-            <v-icon class="blue--text" left>signal_cellular_alt</v-icon>Report
+            <v-icon class="yellow--text" left>signal_cellular_alt</v-icon>Report
           </dt>
         </v-btn>
       </dl>

@@ -135,4 +135,60 @@ module.exports = {
 			});
 		}
 	},
+
+	async updateLike(req, res) {
+		const offerUpdateInfo = {
+			like: req.body.like,
+		};
+		const offerId = {
+			_id: req.body.offerId,
+		};
+
+		try {
+			await offerConnection.updateOne(
+				offerId,
+				offerUpdateInfo,
+				(err, updateResult) => {
+					if (err)
+						return res.status(403).send({
+							error: "Offer like not updated",
+						});
+					else if (updateResult.nModified == 1)
+						return res.status(201).send(updateResult);
+					else
+						return res.status(404).send({
+							error: "Offer like not updated please make change to update",
+						});
+				}
+			);
+		} catch (err) {
+			return res.status(403).send({
+				error: err,
+			});
+		}
+	},
+
+	async countOffers(req, res) {
+		try {
+			await offerConnection.countDocuments((err, result) => {
+				if (err) {
+					return res.status(403).send({
+						error: err,
+					});
+				} else if (result == 0) {
+					return res.status(404).send({
+						error: "error when counting",
+					});
+				} else {
+					res.send({
+						result: result,
+					});
+				}
+			});
+		} catch (err) {
+			res.status(403).send({
+				error: err,
+			});
+		}
+	},
 };
