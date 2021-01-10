@@ -12,6 +12,7 @@ import offers from "../components/campaign/offers";
 import event from "../components/campaign/event";
 import supperAdminDashboard from "../components/admin/supperAdminDashBoard";
 import branch from "../components/admin/branch";
+import profile from "../components/admin/profile";
 
 Vue.use(Router);
 
@@ -76,6 +77,11 @@ export default new Router({
 			path: "/branch",
 			name: "branch",
 			component: branch,
+		},
+		{
+			path: "/manage-account",
+			name: "profile",
+			component: profile,
 		},
 	],
 });

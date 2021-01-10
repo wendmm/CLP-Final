@@ -44,7 +44,9 @@
               <v-list-item-title>Login</v-list-item-title>
             </v-list-item>
             <v-list-item id="menuItem">
-              <v-list-item-title>Help</v-list-item-title>
+              <v-list-item-title>
+                <a target="_blank" href="/Help/index.htm">Help</a>
+              </v-list-item-title>
             </v-list-item>
             <v-list-item
               id="menuItem"
@@ -66,7 +68,7 @@
           <span class="text-capitalize">Login</span>
         </v-btn>
         <v-btn text>
-          <span class="text-capitalize">Help</span>
+          <a class="white--text" target="_blank" href="/Help/index.htm">Help</a>
         </v-btn>
         <v-btn
           text
@@ -121,7 +123,11 @@
               <v-list-item-title>Login</v-list-item-title>
             </v-list-item>
             <v-list-item id="menuItem">
-              <v-list-item-title>Help</v-list-item-title>
+              <v-list-item-title>
+                <a target="_blank" href="/Help/index.htm"
+                  >Help</a
+                ></v-list-item-title
+              >
             </v-list-item>
             <v-list-item
               id="menuItem"
@@ -148,7 +154,7 @@
           <span class="text-capitalize">Login</span>
         </v-btn>
         <v-btn text>
-          <span class="text-capitalize">Help</span>
+          <a class="white--text" target="_blank" href="/Help/index.htm">Help</a>
         </v-btn>
         <v-btn
           text
@@ -339,10 +345,35 @@
             <v-icon class="yellow--text" left>emoji_events</v-icon>Reward
           </dt>
         </v-btn>
-        <v-btn text id="sideBarBtns">
+        <v-btn text id="sideBarBtns" @click="reportClicked = !reportClicked">
           <dt class="white--text pl-4 pt-2 pb-2 text-capitalize">
             <v-icon class="yellow--text" left>report</v-icon>Report
           </dt>
+        </v-btn>
+
+        <v-btn
+          text
+          v-if="reportClicked"
+          id="sideBarBtns"
+          @click="navigator({ name: 'earningPointRules' })"
+        >
+          <dd class="white--text pt-2 pb-2 text-capitalize">
+            &nbsp;&nbsp;&nbsp;
+            <v-icon class="blue--text" left>group</v-icon>
+            <span>Customer</span>
+          </dd>
+        </v-btn>
+        <v-btn
+          text
+          v-if="reportClicked"
+          id="sideBarBtns"
+          @click="navigator({ name: 'earningPointRules' })"
+        >
+          <dd class="white--text pt-2 pb-2 text-capitalize">
+            &nbsp;&nbsp;&nbsp;
+            <v-icon class="blue--text" left>restaurant</v-icon>
+            <span>Services</span>
+          </dd>
         </v-btn>
         <v-btn text id="sideBarBtns">
           <dt class="white--text pl-4 pt-2 pb-2 text-capitalize">
@@ -368,7 +399,12 @@
       </v-toolbar-title>
       <v-layout raw wrap class="grey darken-1 pb-4 pl-3 mt-2">
         <v-flex xs5 class="">
-          <a v-on:mouseover="mouseover" @mouseleave="mouseleave" class="">
+          <a
+            v-on:mouseover="mouseover"
+            @mouseleave="mouseleave"
+            class=""
+            @click="navigator({ name: 'profile' })"
+          >
             <v-avatar color="grey" size="60" class="ml-3 mt-5">
               <v-img
                 id="adminProfile"
@@ -421,14 +457,40 @@
             <v-icon class="yellow--text" left>device_hub</v-icon>Branch
           </dt>
         </v-btn>
-        <v-btn
-          text
-          @click="navigator({ name: 'supperDashboard' })"
-          id="sideBarBtns"
-        >
+        <v-btn text @click="reportClicked = !reportClicked" id="sideBarBtns">
           <dt class="white--text pl-4 pt-2 pb-2 text-capitalize">
             <v-icon class="yellow--text" left>signal_cellular_alt</v-icon>Report
+            <v-icon class="mr-0 ml-4 white--text" right v-if="!reportClicked"
+              >navigate_next</v-icon
+            >
+            <v-icon class="mr-0 ml-4 white--text" right v-if="reportClicked"
+              >expand_more</v-icon
+            >
           </dt>
+        </v-btn>
+        <v-btn
+          text
+          v-if="reportClicked"
+          id="sideBarBtns"
+          @click="navigator({ name: 'earningPointRules' })"
+        >
+          <dd class="white--text pt-2 pb-2 text-capitalize">
+            &nbsp;&nbsp;&nbsp;
+            <v-icon class="blue--text" left>group</v-icon>
+            <span>Customer</span>
+          </dd>
+        </v-btn>
+        <v-btn
+          text
+          v-if="reportClicked"
+          id="sideBarBtns"
+          @click="navigator({ name: 'earningPointRules' })"
+        >
+          <dd class="white--text pt-2 pb-2 text-capitalize">
+            &nbsp;&nbsp;&nbsp;
+            <v-icon class="blue--text" left>restaurant</v-icon>
+            <span>Services</span>
+          </dd>
         </v-btn>
       </dl>
     </v-navigation-drawer>
@@ -442,6 +504,7 @@ export default {
       sideBarDrawer: true,
       editAdminProfile: false,
       compaignClicked: false,
+      reportClicked: false,
     };
   },
   methods: {

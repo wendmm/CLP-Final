@@ -110,6 +110,7 @@ module.exports = (app) => {
 	app.post("/updateClient", clientController.updateClient);
 	app.get("/getAllCustomers", clientController.getAllCustomers);
 	app.post("/updateLike", offerController.updateLike);
+	app.get("/getRecommondation", clientController.getRecommondation);
 
 	//supper admin
 	app.post(
@@ -151,7 +152,7 @@ module.exports = (app) => {
 
 	app.post(
 		"/updateLastCheckDate",
-		isAuthenticated,
+
 		supperAdminController.updateLastCheckDate
 	);
 
@@ -164,6 +165,8 @@ module.exports = (app) => {
 		isAuthenticated,
 		supperAdminController.getAllCustomersFromSupper
 	);
+
+	app.get("/getAllTransactions", adminController.getAllTransactions);
 
 	app.get(
 		"/countCustomers",

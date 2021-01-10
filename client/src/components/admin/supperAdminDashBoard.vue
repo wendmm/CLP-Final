@@ -8,10 +8,15 @@
     >
       <p class="headline ml-10 pl-10">Dashboard</p>
       <div class="white pt-3" id="dashBoard">
+        <span class="ml-10"
+          >Direct signed customers {{ totalCustomers - totalRefferd }}</span
+        >
+        <span class="ml-10">Referred customers {{ totalRefferd }}</span>
         <v-layout row wrap justify-space-around class="pa-10 pt-3">
           <v-flex xs12 md2 id="numericalStastics" class="mt-2">
             <p class="text-center"><v-icon large>group</v-icon></p>
             <p class="text-center headline">{{ totalCustomers }}</p>
+
             <p class="text-center pa-1 mb-0 white--text orange">
               Total Customers
             </p>
@@ -50,14 +55,7 @@
               width="100%"
             ></apexchart>
           </v-flex>
-          <v-flex xs12 md4 class="pt-3 ma-2">
-            <apexchart
-              type="line"
-              :options="options"
-              :series="series"
-              width="100%"
-            ></apexchart>
-          </v-flex>
+
           <v-flex xs12 md4 class="pt-3 ma-2">
             <apexchart
               width="100%"
@@ -65,6 +63,69 @@
               :options="chartOptions"
               :series="series2"
             ></apexchart>
+          </v-flex>
+          <v-flex xs12 md3 class="pt-3 ma-2">
+            <apexchart
+              type="line"
+              :options="optionsTransaction"
+              :series="seriesTransaction"
+              width="100%"
+            ></apexchart>
+          </v-flex>
+        </v-layout>
+        <br /><br />
+        <v-layout row wrap justify-space-around>
+          <v-flex xs12 md5>
+            <p class="headline">Top 5 loyal customers</p>
+            <!-- <v-data-table
+              ref="printTable"
+              :headers="headers"
+              :items="topCustomers"
+              class="elevation-0"
+            ></v-data-table> -->
+            <table
+              style="width: 100%"
+              ref="printTable"
+              border="1"
+              id="printableTable"
+            >
+              <tr>
+                <th>First Name</th>
+                <th>Last Name</th>
+                <th>Phone Nuber</th>
+                <th>Points</th>
+                <th>Level</th>
+              </tr>
+              <tr v-for="(customers, index) in topCustomers" :key="index">
+                <td>{{ customers.firstName }}</td>
+                <td>{{ customers.lastName }}</td>
+                <td>{{ customers.phoneNumber }}</td>
+                <td>{{ customers.totalPoints }}</td>
+                <td>{{ customers.level }}</td>
+              </tr>
+            </table>
+
+            <v-btn @click="printData">
+              <span>Print Table</span>
+            </v-btn>
+          </v-flex>
+          <v-flex xs12 md5>
+            <p class="headline">Top 5 services used by customers</p>
+
+            <table style="width: 100%" border="1">
+              <tr>
+                <th>Service</th>
+                <th>Price</th>
+              </tr>
+              <tr>
+                <td>Tibs</td>
+                <td>55</td>
+              </tr>
+              <tr>
+                <td>Buna</td>
+                <td>5</td>
+              </tr>
+            </table>
           </v-flex>
         </v-layout>
       </div>
@@ -89,6 +150,15 @@ export default {
       totalCustomers: 0,
       totalRewards: 0,
       totalOffers: 0,
+      totalMals: 0,
+      totalFemales: 0,
+      totalRefferd: 0,
+      topCustomers: [],
+      allTransactions: [],
+      activeCustomers: 0,
+      lapsedCustomers: 0,
+      dormantCustomers: 0,
+
       error: "",
       options: {
         chart: {
@@ -105,16 +175,94 @@ export default {
       },
       series: [],
 
-      series2: [204, 55],
+      series2: [],
       chartOptions: {
         labels: ["Male", "Female"],
-        colors: ["#00ff00", "#ff4000"],
+        colors: ["#00ff00", "#0000ff"],
       },
+
+      seriesTransaction: [
+        {
+          name: "line",
+          data: [12, 35, 25, 30, 23, 50],
+        },
+      ],
+      optionsTransaction: {
+        chart: {
+          id: "transaction",
+        },
+        xaxis: {
+          categories: [
+            "monday",
+            "Tuesday",
+            "Wednsday",
+            "Thursday",
+            "Friday",
+            "Saturday",
+          ],
+        },
+      },
+      headers: [
+        {
+          text: "First Name",
+          align: "start",
+          value: "firstName",
+        },
+        {
+          text: "Last Name",
+
+          value: "lastName",
+        },
+        {
+          text: "Phone No",
+
+          value: "phoneNumber",
+        },
+        {
+          text: "Points",
+
+          value: "totalPoints",
+        },
+
+        {
+          text: "Level",
+
+          value: "level",
+        },
+
+        // {
+        //   text: "Actions",
+
+        //   value: "actions",
+        // },
+      ],
     };
   },
   methods: {
+    printData() {
+      var divToPrint = this.$refs.printTable;
+      var newWin = window.open("");
+      newWin.document.write(divToPrint.outerHTML);
+      // newWin.print();
+
+      newWin.close();
+    },
+
+    // createPDF() {
+    //   let pdfName = "mes-enfants";
+    //   var doc = new jsPDF();
+
+    //   doc.html(this.$refs.printTable.outerHTML, {
+    //     x: 15,
+    //     y: 15,
+    //     width: 170,
+    //   });
+
+    //   doc.save(pdfName + ".pdf");
+    // },
+
     async addingPoints() {
-      var foundTransaction = [{}];
+      var foundTransaction = [];
       var lastCkeckDateId = "";
 
       var currentdate = new Date();
@@ -166,7 +314,7 @@ export default {
       }
 
       let i = 0;
-      let isFound = false;
+
       for (i = 0; i < foundTransaction.length; i++) {
         try {
           await apiService.addingPoint({
@@ -180,14 +328,14 @@ export default {
             branch: result.data.data.getAllTransaction[i].branch_name,
             transactionDate: result.data.data.getAllTransaction[i].date,
           });
-          isFound = true;
+          alert("leba");
         } catch (err) {
           this.error = err;
         }
       }
 
       //updating last check date
-      if (isFound) {
+      if (foundTransaction.length > 0) {
         try {
           await apiService.updateLastCheckDate({
             dateNow: datetime,
@@ -211,7 +359,16 @@ export default {
       this.totalOffers = await apiService.countOffers();
       this.totalOffers = this.totalOffers.data.result;
     },
+    async getAllTransactions() {
+      this.allTransactions = await apiService.getAllTransactions();
+
+      this.allTransactions = this.allTransactions.data.results;
+    },
     async getAllCustomers() {
+      this.totalFemales = 0;
+      this.totalMals = 0;
+      this.totalRefferd = 0;
+      this.activeCustomers = 0;
       this.allCustomers = await apiService.getAllCustomers();
       this.allCustomers = this.allCustomers.data.allCustomers;
       var newCustomers = 0;
@@ -224,24 +381,72 @@ export default {
         ) {
           newCustomers = newCustomers + 1;
         }
+        if (this.allCustomers[i].isFemale == true) {
+          this.totalFemales++;
+        } else this.totalMals++;
+        if (this.allCustomers[i].isReferred == true) this.totalRefferd++;
+        var eyekotereNew = 0;
+        var lapsedCounter = 0;
+        for (let index = 0; index < this.allTransactions.length; index++) {
+          if (
+            this.allCustomers[i].customerId ==
+            this.allTransactions[index].customerId
+          ) {
+            var finalDate = Date.now() - 60 * 60 * 24 * 30 * 1000;
+            if (
+              finalDate <= this.allTransactions[index].transactionDate &&
+              this.allTransactions[index].transactionDate <= Date.now()
+            ) {
+              this.activeCustomers++;
+              eyekotereNew++;
+            }
+            finalDate = Date.now() - 60 * 60 * 24 * 30 * 1000 * 2;
+
+            if (
+              finalDate <= this.allTransactions[index].transactionDate &&
+              this.allTransactions[index].transactionDate <= Date.now()
+            ) {
+              lapsedCounter++;
+            }
+          }
+
+          if (eyekotereNew > 0) break;
+        }
+        if (lapsedCounter == 0) this.lapsedCustomers++;
       }
 
       this.series = [
         {
           name: "bar",
-          data: [newCustomers, 35, 25, 30],
+          data: [
+            newCustomers,
+            this.activeCustomers,
+            this.lapsedCustomers,
+            this.totalCustomers - this.activeCustomers - this.lapsedCustomers,
+          ],
         },
       ];
+      this.series2 = [this.totalMals, this.totalFemales];
+
+      this.allCustomers.sort((a, b) =>
+        a["totalPoints"] > b["totalPoints"] ? -1 : 1
+      );
+      this.topCustomers = [];
+      for (let k = 0; k < 5; k++) {
+        this.topCustomers.push(this.allCustomers[k]);
+      }
     },
   },
   created() {
     setInterval(() => {
       this.addingPoints();
       this.countCustomers();
+
       this.countRewards();
       this.countOffers();
+      this.getAllTransactions();
       this.getAllCustomers();
-    }, 10000);
+    }, 5000);
   },
 };
 </script>
@@ -255,5 +460,8 @@ export default {
   max-width: 1000px;
   border: solid 1px rgb(226, 225, 225);
   margin: auto;
+}
+.v-data-table {
+  border: 1px solid rgb(226, 217, 217);
 }
 </style>

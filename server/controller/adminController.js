@@ -3,6 +3,7 @@ const JWT = require("jsonwebtoken");
 const config = require("../config/config");
 const adminRequireConnection = require("../database/adminSchema");
 const supperAdminConnection = require("../database/supperAdminSchema");
+const transactionConnection = require("../database/transactionSchema");
 const passwordEncription = require("../Encription/passwordEncriptionComparison");
 const adminConnectionModel = mongoose.model("adminCollection");
 const supperAdminModel = mongoose.model("supperAdminCollection");
@@ -116,6 +117,30 @@ module.exports = {
 					error: err,
 				});
 			}
+		}
+	},
+
+	async getAllTransactions(req, res) {
+		try {
+			await transactionConnection.find((err, results) => {
+				if (err) {
+					return res.status(403).send({
+						error: err,
+					});
+				} else if (results == "") {
+					return res.status(404).send({
+						error: "There is no transaction",
+					});
+				} else {
+					res.send({
+						results: results,
+					});
+				}
+			});
+		} catch (err) {
+			res.status(403).send({
+				error: err,
+			});
 		}
 	},
 };

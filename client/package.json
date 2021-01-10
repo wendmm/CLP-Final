@@ -11,6 +11,7 @@
     "apexcharts": "^3.23.0",
     "axios": "^0.19.0",
     "core-js": "^2.6.5",
+    "jspdf": "^2.2.0",
     "multer": "^1.4.2",
     "vue": "^2.6.10",
     "vue-apexcharts": "^1.6.0",

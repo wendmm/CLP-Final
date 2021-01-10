@@ -1,7 +1,10 @@
 const mongoose = require("mongoose");
+const { Apriori, Itemset, IAprioriResults } = require("node-apriori");
 const JWT = require("jsonwebtoken");
 const config = require("../config/config");
 const clientRequireConnection = require("../database/clientSchema");
+const transactionConn = require("../database/transactionSchema");
+
 const passwordEncription = require("../Encription/passwordEncriptionComparison");
 const supperAdminController = require("./supperAdminController");
 const clientConnectionModel = mongoose.model("clientCollection");
@@ -255,6 +258,122 @@ module.exports = {
 		}
 	},
 	async getProfileImage(req, res) {},
+
+	async getRecommondation(req, res) {
+		try {
+			await transactionConn.find((err, allTransactions) => {
+				if (err) {
+					return res.status(403).send({
+						error: err,
+					});
+				} else if (allTransactions == null) {
+					return res.status(404).send({
+						error: "There is no transaction",
+					});
+				} else {
+					var transactions = [[]];
+
+					let i = 0;
+					for (i = 0; i < allTransactions.length; i++) {
+						if (i > 0) {
+							var count = 0;
+							for (let j = 0; j < transactions.length; j++) {
+								for (let f = 0; f < transactions[j].length; f++) {
+									if (
+										allTransactions[i].transactionDate ==
+										transactions[j][f].transactionDate
+									) {
+										transactions[j].push(allTransactions[i]);
+										count++;
+									}
+									break;
+								}
+								if (count > 0) break;
+							}
+							if (count == 0) {
+								transactions.push([]);
+								transactions[transactions.length - 1].push(allTransactions[i]);
+							}
+						} else {
+							transactions[i].push(allTransactions[i]);
+						}
+					}
+
+					var tempTransaction = transactions;
+					transactions = [];
+					for (let conuter = 0; conuter < tempTransaction.length; conuter++) {
+						transactions.push([]);
+					}
+
+					for (let index = 0; index < tempTransaction.length; index++) {
+						for (
+							let rowIndx = 0;
+							rowIndx < tempTransaction[index].length;
+							rowIndx++
+						) {
+							transactions[index].push(tempTransaction[index][rowIndx].item);
+						}
+					}
+
+					let apriori = new Apriori(0.25);
+
+					// console.log(transactions1);
+					apriori.on("data", (itemset) => {
+						// Do something with the frequent itemset.
+						let support = itemset.support;
+						let items = itemset.items;
+					});
+
+					apriori.exec(transactions).then((result) => {
+						let frequentItemsets = result.itemsets;
+
+						let finalItemSet =
+							frequentItemsets[frequentItemsets.length - 1].items;
+						console.log(finalItemSet);
+
+						for (let i = 0; i < finalItemSet.length; i++) {
+							var mainItem = "";
+							var supportItem = [];
+							for (let j = 0; j < finalItemSet.length; j++) {
+								if (i == j) {
+									mainItem = finalItemSet[i];
+								} else supportItem.push(finalItemSet[j]);
+							}
+
+							console.log(mainItem + " => " + supportItem);
+						}
+						// for (let i = 0; i < finalItemSet.length; i++) {
+						// 	var mainItem = "";
+						// 	var supportItem = [];
+						// 	for (let j = 0; j < finalItemSet.length; j++) {
+						// 		if (i == j) {
+						// 			mainItem = finalItemSet[i];
+						// 		} else supportItem.push(finalItemSet[j]);
+						// 	}
+
+						// 	console.log(supportItem + " => " + mainItem);
+						// }
+					});
+					res.send({
+						allTransactions: allTransactions,
+					});
+				}
+			});
+		} catch (err) {
+			res.status(403).send({
+				error: err,
+			});
+		}
+
+		// let transactions = [
+		// 	[1, 2, 3],
+		// 	[2, 3, 4],
+		// 	[4, 5],
+		// 	[1, 2, 4],
+		// 	[1, 2, 3, 5],
+		// 	[1, 2, 3, 4],
+		// ];
+	},
 };
 
 function jwtSignUser(client) {

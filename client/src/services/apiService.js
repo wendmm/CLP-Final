@@ -168,6 +168,9 @@ export default {
 	getAllCustomersFromSupper() {
 		return Api().get("getAllCustomersFromSupper");
 	},
+	getAllTransactions() {
+		return Api().get("getAllTransactions");
+	},
 	uploadImage(adminPicture) {
 		return Api().post("imageUpload", adminPicture);
 	},
