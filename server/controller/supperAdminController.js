@@ -1,7 +1,12 @@
 const mongoose = require("mongoose");
+const JWT = require("jsonwebtoken");
+const config = require("../config/config");
+
 const branchConnection = require("../database/branchSchema");
 const adminConnection = require("../database/adminSchema");
 const lastDateConnection = require("../database/lastCheckedDate");
+
+const supperAdminConnection = require("../database/supperAdminSchema");
 
 const clientRequireConnection = require("../database/clientSchema");
 const purchasePointRuleConnection = require("../database/purchasePointRuleSchema");
@@ -696,4 +701,71 @@ module.exports = {
 			});
 		}
 	},
+	async updateProfile(req, res) {
+		const adminId = {
+			_id: req.body._id,
+		};
+
+		const updateInfo = {
+			firstName: req.body.firstName,
+			middleName: req.body.middleName,
+			lastName: req.body.lastName,
+			phoneNumber: req.body.phoneNumber,
+			address: req.body.address,
+			adminPicture: req.body.adminPicture,
+		};
+		if (req.body.from == "supper") {
+			try {
+				await supperAdminConnection.updateOne(
+					adminId,
+					updateInfo,
+					(err, admin) => {
+						if (err)
+							return res.status(403).send({
+								error: err,
+							});
+						else if (admin.nModified == 1) {
+							try {
+								supperAdminConnection.findOne(adminId, (err, admin) => {
+									if (err)
+										return res.status(400).send({
+											error: err,
+										});
+									if (!admin) {
+										return res.status(404).send({
+											error:
+												"Admin profile updated but local storage not updated",
+										});
+									} else {
+										const adminJson = admin.toJSON();
+										res.send({
+											admin: adminJson,
+											adminToken: jwtSignUser(adminJson),
+										});
+									}
+								});
+							} catch (err) {
+								res.status(500).send({
+									error: err,
+								});
+							}
+						} else
+							return res.status(404).send({
+								error: "Please make a change",
+							});
+					}
+				);
+			} catch (err) {
+				return res.status(403).send({
+					error: err,
+				});
+			}
+		}
+	},
 };
+
+function jwtSignUser(admin) {
+	return JWT.sign(admin, config.authentication.jwtSecret, {
+		expiresIn: 24 * 60 * 60,
+	});
+}

@@ -5,7 +5,7 @@ var transactionSchema = new mongoose.Schema({
 	customerId: Number,
 	branch: String,
 	item: String,
-	quantity: String,
+	quantity: Number,
 	invoice: Number,
 	transactionDate: String,
 });

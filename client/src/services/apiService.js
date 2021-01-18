@@ -174,4 +174,17 @@ export default {
 	uploadImage(adminPicture) {
 		return Api().post("imageUpload", adminPicture);
 	},
+
+	updateProfile(updateInfo) {
+		return Api().post("updateProfile", updateInfo);
+	},
+	getRedeemedReward(barcode) {
+		return Api().post("getRedeemReward", barcode);
+	},
+	getCustomer(customerId) {
+		return Api().post("getCustomer", customerId);
+	},
+	useRedeemedReward(redeemId) {
+		return Api().post("useRedeemedReward", redeemId);
+	},
 };

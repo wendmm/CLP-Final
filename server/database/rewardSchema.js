@@ -6,7 +6,6 @@ var rewardSchema = new mongoose.Schema({
 	rewardDescription: String,
 	minPoint: Number,
 	level: String,
-	expiryDate: String,
 });
 var rewardSchema = mongoose.model("rewardCollection", rewardSchema);
 module.exports = rewardSchema;

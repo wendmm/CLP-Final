@@ -13,7 +13,6 @@ module.exports = {
 		rewardConnection.rewardDescription = req.body.rewardDescription;
 		rewardConnection.minPoint = req.body.minPoint;
 		rewardConnection.level = req.body.level;
-		rewardConnection.expiryDate = req.body.expiryDate;
 
 		try {
 			await rewardConnection.save((err, reward) => {
@@ -152,4 +151,5 @@ module.exports = {
 			});
 		}
 	},
+	async getAvailableReward(req, res) {},
 };

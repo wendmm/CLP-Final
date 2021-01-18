@@ -96,6 +96,7 @@ module.exports = (app) => {
 	app.post("/updateReward", isAuthenticated, rewardController.updateReward);
 	app.post("/deleteReward", isAuthenticated, rewardController.deleteReward);
 	app.post("/deleteLevel", isAuthenticated, levelController.deleteLevel);
+	app.post("/getAvailableReward", rewardController.getAvailableReward);
 
 	//level
 	app.post("/saveLevel", levelController.saveLevel);
@@ -111,6 +112,19 @@ module.exports = (app) => {
 	app.get("/getAllCustomers", clientController.getAllCustomers);
 	app.post("/updateLike", offerController.updateLike);
 	app.get("/getRecommondation", clientController.getRecommondation);
+	app.post("/redeemReward", clientController.redeemReward);
+	app.post("/getCustomer", clientController.getCustomer);
+	app.post(
+		"/getRedeemReward",
+		isAuthenticated,
+		clientController.getRedeemReward
+	);
+
+	app.post(
+		"/useRedeemedReward",
+		isAuthenticated,
+		clientController.useRedeemedReward
+	);
 
 	//supper admin
 	app.post(
@@ -172,5 +186,10 @@ module.exports = (app) => {
 		"/countCustomers",
 		isAuthenticated,
 		supperAdminController.countCustomers
+	);
+	app.post(
+		"/updateProfile",
+		isAuthenticated,
+		supperAdminController.updateProfile
 	);
 };

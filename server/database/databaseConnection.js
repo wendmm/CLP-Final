@@ -24,3 +24,4 @@ require("./levelSchema");
 require("./clientSchema");
 require("./lastCheckedDate");
 require("./transactionSchema");
+require("./rewardSchema");

@@ -13,6 +13,10 @@ import event from "../components/campaign/event";
 import supperAdminDashboard from "../components/admin/supperAdminDashBoard";
 import branch from "../components/admin/branch";
 import profile from "../components/admin/profile";
+import transaction from "../components/service/transaction";
+import report from "../components/report/report";
+import redeem from "../components/admin/redeemption";
+import barcode from "../components/admin/barCodeGenerator";
 
 Vue.use(Router);
 
@@ -49,6 +53,11 @@ export default new Router({
 			component: rewards,
 		},
 		{
+			path: "/redeemption",
+			name: "redeem",
+			component: redeem,
+		},
+		{
 			path: "/serviceDisplay",
 			name: "serviceDisplay",
 			component: serviceDisplay,
@@ -82,6 +91,23 @@ export default new Router({
 			path: "/manage-account",
 			name: "profile",
 			component: profile,
+		},
+
+		{
+			path: "/transaction",
+			name: "transaction",
+			component: transaction,
+		},
+		{
+			path: "/report",
+			name: "report",
+			component: report,
+		},
+
+		{
+			path: "/bar",
+			name: "bar",
+			component: barcode,
 		},
 	],
 });

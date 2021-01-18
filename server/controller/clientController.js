@@ -1,13 +1,19 @@
 const mongoose = require("mongoose");
 const { Apriori, Itemset, IAprioriResults } = require("node-apriori");
+const axios = require("axios");
 const JWT = require("jsonwebtoken");
 const config = require("../config/config");
 const clientRequireConnection = require("../database/clientSchema");
 const transactionConn = require("../database/transactionSchema");
+const otherPointRuleConnection = require("../database/otherPointRuleSchema");
+const rewardConnection = require("../database/rewardSchema");
+const redeemConnection = require("../database/redeemSchema");
 
 const passwordEncription = require("../Encription/passwordEncriptionComparison");
 const supperAdminController = require("./supperAdminController");
 const clientConnectionModel = mongoose.model("clientCollection");
+
+const redeemConnectionModel = mongoose.model("redeemCollection");
 var fs = require("fs");
 var ReadableData = require("stream").Readable;
 
@@ -40,31 +46,139 @@ async function sendSMS(usernamePassword, adminPhone) {
 }
 module.exports = {
 	async clientRegistration(req, res) {
+		if (req.body.referredFrom != "") {
+			const referdFrom = {
+				referralCode: req.body.referredFrom,
+			};
+			try {
+				await clientRequireConnection.findOne(referdFrom, (err, client) => {
+					if (err)
+						return res.status(404).send({
+							error: "not exist",
+						});
+					if (!client) {
+						return res.status(404).send({
+							error: "not exist try again",
+						});
+					} else {
+						const referral = {
+							cause: "referral",
+						};
+						try {
+							otherPointRuleConnection.findOne(referral, (err, referral) => {
+								if (err)
+									return res.status(404).send({
+										error: "not exist",
+									});
+								if (!referral) {
+									return res.status(404).send({
+										error: "not exist try again",
+									});
+								} else {
+									const points = {
+										points: client.points + referral.point,
+									};
+									try {
+										clientRequireConnection.updateOne(
+											referdFrom,
+											points,
+											(err, pointResult) => {
+												if (err)
+													return res.status(403).send({
+														error: err,
+													});
+												else if (pointResult.nModified == 1) {
+												} else
+													return res.status(404).send({
+														error: "no point is add",
+													});
+											}
+										);
+									} catch (err) {
+										return res.status(403).send({
+											error: err,
+										});
+									}
+								}
+							});
+						} catch (err) {
+							res.status(400).send({
+								error: err,
+							});
+						}
+					}
+				});
+			} catch (err) {
+				res.status(400).send({
+					error: err,
+				});
+			}
+		}
+
+		var signUpPoint = 0;
+
+		const signup = {
+			cause: "signup",
+		};
+		try {
+			otherPointRuleConnection.findOne(signup, (err, signup) => {
+				if (err)
+					return res.status(404).send({
+						error: "not exist",
+					});
+				if (!signup) {
+					return res.status(404).send({
+						error: "not exist try again",
+					});
+				} else {
+					signUpPoint = signup.point;
+				}
+			});
+		} catch (err) {
+			res.status(400).send({
+				error: err,
+			});
+		}
+
+		var result = await axios({
+			method: "POST",
+			url: "http://localhost:5000/graphql",
+			data: {
+				query: `{
+                  getAllCustomer(phone_number:"${req.body.phoneNumber}"){
+                     id
+                     }
+                  }
+                `,
+			},
+		});
+
 		const clientConnection = new clientConnectionModel();
 		var confirmationCode = generateRandomNumber(10000);
 		clientConnection.firstName = req.body.firstName;
 		clientConnection.lastName = req.body.lastName;
 		clientConnection.phoneNumber = req.body.phoneNumber;
-		clientConnection.email = req.body.email;
+		clientConnection.referralCode = req.body.referralCode;
+		clientConnection.referredFrom = req.body.referredFrom;
 		clientConnection.birthDate = req.body.birthDate;
 		clientConnection.isFemale = req.body.isFemale;
-		clientConnection.points = 0;
+		clientConnection.points = signUpPoint;
 		clientConnection.totalPoints = 0;
 		clientConnection.level = "";
 
 		clientConnection.registeredDate = Date.now();
-		clientConnection.isReferred = false;
 		clientConnection.activationCode = confirmationCode;
 
 		clientConnection.profileImage = "";
 		clientConnection.password = passwordEncription.passwordEncription(
 			req.body.password
 		);
-		clientConnection.customerId = req.body.customerId;
+		clientConnection.customerId = result.data.data.getAllCustomer[0].id;
 
 		try {
 			await clientConnection.save((err, client) => {
 				if (err) {
+					console.log(err);
 					return res.status(403).send({
 						error: "Client already exist",
 					});
@@ -329,33 +443,30 @@ module.exports = {
 
 						let finalItemSet =
 							frequentItemsets[frequentItemsets.length - 1].items;
-						console.log(finalItemSet);
 
-						for (let i = 0; i < finalItemSet.length; i++) {
-							var mainItem = "";
-							var supportItem = [];
-							for (let j = 0; j < finalItemSet.length; j++) {
-								if (i == j) {
-									mainItem = finalItemSet[i];
-								} else supportItem.push(finalItemSet[j]);
+						var finalRecommondation = [];
+
+						for (let x = 0; x < finalItemSet.length; x++) {
+							const reward = {
+								rewardName: finalItemSet[x],
+							};
+
+							try {
+								rewardConnection.findOne(reward, (err, reward) => {
+									if (reward) {
+										finalRecommondation.push(reward);
+										if (x == finalItemSet.length - 1)
+											res.send({
+												allRewards: finalRecommondation,
+											});
+									}
+								});
+							} catch (err) {
+								res.status(400).send({
+									error: err,
+								});
 							}
-
-							console.log(mainItem + " => " + supportItem);
 						}
-						// for (let i = 0; i < finalItemSet.length; i++) {
-						// 	var mainItem = "";
-						// 	var supportItem = [];
-						// 	for (let j = 0; j < finalItemSet.length; j++) {
-						// 		if (i == j) {
-						// 			mainItem = finalItemSet[i];
-						// 		} else supportItem.push(finalItemSet[j]);
-						// 	}
-
-						// 	console.log(supportItem + " => " + mainItem);
-						// }
-					});
-					res.send({
-						allTransactions: allTransactions,
 					});
 				}
 			});
@@ -373,6 +484,148 @@ module.exports = {
 		// 	[1, 2, 3, 5],
 		// 	[1, 2, 3, 4],
 		// ];
+	},
+	async redeemReward(req, res) {
+		const customerId = {
+			_id: req.body.customerId,
+		};
+		const pointUpdate = {
+			points: req.body.points - req.body.minPoint,
+			totalPoints: req.body.totalPoints + req.body.minPoint,
+		};
+
+		const redeemConnection = new redeemConnectionModel();
+		redeemConnection.customerId = req.body.customerId;
+
+		redeemConnection.point = req.body.minPoint;
+		redeemConnection.rewardName = req.body.rewardName;
+		redeemConnection.redeemptionDate = Date.now();
+		redeemConnection.status = false;
+
+		try {
+			await clientRequireConnection.updateOne(
+				customerId,
+				pointUpdate,
+				(err, updateResult) => {
+					if (err)
+						return res.status(403).send({
+							error: err,
+						});
+					else if (updateResult) {
+						try {
+							redeemConnection.save((err, redeem) => {
+								if (err) {
+									console.log(err);
+									return res.status(403).send({
+										error: "not submited",
+									});
+								}
+								if (redeem) {
+									return res.status(201).send(redeem);
+								}
+							});
+						} catch (err) {
+							res.status(400).send(err);
+						}
+					} else
+						return res.status(403).send({
+							error: "",
+						});
+				}
+			);
+		} catch (err) {
+			return res.status(400).send({
+				error: err,
+			});
+		}
+	},
+
+	async getRedeemReward(req, res) {
+		const customerId = {
+			customerId: req.body.barCode,
+			status: false,
+		};
+		try {
+			await redeemConnection.find(customerId, (err, redeemed) => {
+				if (err) {
+					return res.status(403).send({
+						error: err,
+					});
+				} else if (redeemed == "") {
+					return res.status(404).send({
+						error: "There is no redeemed reward for the customer",
+					});
+				} else {
+					res.send({
+						redeemed: redeemed,
+					});
+				}
+			});
+		} catch (err) {
+			res.status(403).send({
+				error: err,
+			});
+		}
+	},
+
+	async getCustomer(req, res) {
+		const customerId = {
+			referralCode: req.body.customerId,
+		};
+		try {
+			await clientRequireConnection.findOne(customerId, (err, client) => {
+				if (err) {
+					return res.status(403).send({
+						error: err,
+					});
+				} else if (client == "") {
+					return res.status(404).send({
+						error: "There is no customer, wrong bar code",
+					});
+				} else {
+					res.send({
+						client: client,
+					});
+				}
+			});
+		} catch (err) {
+			res.status(403).send({
+				error: err,
+			});
+		}
+	},
+
+	async useRedeemedReward(req, res) {
+		const redeemedRewardId = {
+			_id: req.body.redeemId,
+		};
+		const status = {
+			status: true,
+		};
+		try {
+			await redeemConnection.updateOne(
+				redeemedRewardId,
+				status,
+				(err, result) => {
+					if (err)
+						res.status(403).send({
+							error: err,
+						});
+					else if (result.nModified == 1) {
+						res.send({
+							result: result,
+						});
+					} else
+						res.status(404).send({
+							error: "not used",
+						});
+				}
+			);
+		} catch (err) {
+			res.status(403).send({
+				error: err,
+			});
+		}
 	},
 };
 

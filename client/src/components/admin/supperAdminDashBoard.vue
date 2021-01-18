@@ -8,9 +8,7 @@
     >
       <p class="headline ml-10 pl-10">Dashboard</p>
       <div class="white pt-3" id="dashBoard">
-        <span class="ml-10"
-          >Direct signed customers {{ totalCustomers - totalRefferd }}</span
-        >
+        <span class="ml-10">Direct signed customers {{ totalDirect }}</span>
         <span class="ml-10">Referred customers {{ totalRefferd }}</span>
         <v-layout row wrap justify-space-around class="pa-10 pt-3">
           <v-flex xs12 md2 id="numericalStastics" class="mt-2">
@@ -58,7 +56,7 @@
 
           <v-flex xs12 md4 class="pt-3 ma-2">
             <apexchart
-              width="100%"
+              width="90%"
               type="pie"
               :options="chartOptions"
               :series="series2"
@@ -77,55 +75,42 @@
         <v-layout row wrap justify-space-around>
           <v-flex xs12 md5>
             <p class="headline">Top 5 loyal customers</p>
-            <!-- <v-data-table
+            <v-data-table
               ref="printTable"
               :headers="headers"
               :items="topCustomers"
               class="elevation-0"
-            ></v-data-table> -->
-            <table
-              style="width: 100%"
-              ref="printTable"
-              border="1"
-              id="printableTable"
-            >
-              <tr>
-                <th>First Name</th>
-                <th>Last Name</th>
-                <th>Phone Nuber</th>
-                <th>Points</th>
-                <th>Level</th>
-              </tr>
-              <tr v-for="(customers, index) in topCustomers" :key="index">
-                <td>{{ customers.firstName }}</td>
-                <td>{{ customers.lastName }}</td>
-                <td>{{ customers.phoneNumber }}</td>
-                <td>{{ customers.totalPoints }}</td>
-                <td>{{ customers.level }}</td>
-              </tr>
-            </table>
-
-            <v-btn @click="printData">
-              <span>Print Table</span>
-            </v-btn>
+            ></v-data-table>
           </v-flex>
           <v-flex xs12 md5>
             <p class="headline">Top 5 services used by customers</p>
 
-            <table style="width: 100%" border="1">
-              <tr>
-                <th>Service</th>
-                <th>Price</th>
-              </tr>
-              <tr>
-                <td>Tibs</td>
-                <td>55</td>
-              </tr>
-              <tr>
-                <td>Buna</td>
-                <td>5</td>
-              </tr>
+            <table
+              class="display nowrap"
+              style="width: 100%"
+              ref="printTable"
+              border="1"
+              id="toPrint"
+            >
+              <thead>
+                <tr>
+                  <th>Service</th>
+                  <th>Price</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>Tibs</td>
+                  <td>55</td>
+                </tr>
+                <tr>
+                  <td>Buna</td>
+                  <td>5</td>
+                </tr>
+              </tbody>
             </table>
+            <v-btn @click="printData"><span>Print</span></v-btn>
+            <button id="pdf">Export</button>
           </v-flex>
         </v-layout>
       </div>
@@ -143,6 +128,21 @@
 // import apiService from "./services/apiService";
 import apiService from "../../services/apiService";
 import axios from "axios";
+// import { jsPDF } from "jspdf";
+
+import $ from "jquery";
+require("jspdf-autotable");
+import "tableexport";
+
+$(document).ready(function () {
+  $("#pdf").on("click", function () {
+    $("#toPrint").tableExport({
+      type: "pdf",
+      filename: "sample",
+      dom: "Bfrtip",
+    });
+  });
+});
 
 export default {
   data() {
@@ -153,6 +153,7 @@ export default {
       totalMals: 0,
       totalFemales: 0,
       totalRefferd: 0,
+      totalDirect: 0,
       topCustomers: [],
       allTransactions: [],
       activeCustomers: 0,
@@ -243,7 +244,7 @@ export default {
       var divToPrint = this.$refs.printTable;
       var newWin = window.open("");
       newWin.document.write(divToPrint.outerHTML);
-      // newWin.print();
+      newWin.print();
 
       newWin.close();
     },
@@ -318,17 +319,16 @@ export default {
       for (i = 0; i < foundTransaction.length; i++) {
         try {
           await apiService.addingPoint({
-            customerId: result.data.data.getAllTransaction[i].customer_id,
+            customerId: foundTransaction[i].customer_id,
 
-            item: result.data.data.getAllTransaction[i].service[0].serviceName,
-            quantity: result.data.data.getAllTransaction[i].quantity,
+            item: foundTransaction[i].service[0].serviceName,
+            quantity: foundTransaction[i].quantity,
             invoice:
-              result.data.data.getAllTransaction[i].quantity *
-              result.data.data.getAllTransaction[i].service[0].servicePrice,
-            branch: result.data.data.getAllTransaction[i].branch_name,
-            transactionDate: result.data.data.getAllTransaction[i].date,
+              foundTransaction[i].quantity *
+              foundTransaction[i].service[0].servicePrice,
+            branch: foundTransaction[i].branch_name,
+            transactionDate: foundTransaction[i].date,
           });
-          alert("leba");
         } catch (err) {
           this.error = err;
         }
@@ -368,7 +368,9 @@ export default {
       this.totalFemales = 0;
       this.totalMals = 0;
       this.totalRefferd = 0;
+      this.totalDirect = 0;
       this.activeCustomers = 0;
+      this.lapsedCustomers = 0;
       this.allCustomers = await apiService.getAllCustomers();
       this.allCustomers = this.allCustomers.data.allCustomers;
       var newCustomers = 0;
@@ -384,7 +386,8 @@ export default {
         if (this.allCustomers[i].isFemale == true) {
           this.totalFemales++;
         } else this.totalMals++;
-        if (this.allCustomers[i].isReferred == true) this.totalRefferd++;
+        if (this.allCustomers[i].referredFrom != "") this.totalRefferd++;
+        else this.totalDirect++;
         var eyekotereNew = 0;
         var lapsedCounter = 0;
         for (let index = 0; index < this.allTransactions.length; index++) {
@@ -446,7 +449,7 @@ export default {
       this.countOffers();
       this.getAllTransactions();
       this.getAllCustomers();
-    }, 5000);
+    }, 10000);
   },
 };
 </script>

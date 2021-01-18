@@ -12,10 +12,6 @@ var clientSchema = new mongoose.Schema({
 		type: String,
 		unique: true,
 	},
-	email: {
-		type: String,
-		unique: true,
-	},
 	password: {
 		type: String,
 	},
@@ -31,7 +27,12 @@ var clientSchema = new mongoose.Schema({
 	totalPoints: Number,
 	level: String,
 	registeredDate: Number,
-	isReferred: Boolean,
+	referredFrom: String,
+	referralCode: {
+		type: String,
+		unique: true,
+	},
+
 	activationCode: String,
 	profileImage: String,
 	customerId: Number,
