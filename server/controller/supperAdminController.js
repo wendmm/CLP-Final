@@ -21,8 +21,9 @@ function generateRandomNumber(digit) {
 	return (Math.floor(Math.random() * digit) + digit).toString().substring(1);
 }
 
-const accountSid = "ACff9c925d0c376dfa1b3a754fa96d7c6c";
-const authToken = "37e99d71bfa9ddee063d3d11c3eae722";
+const accountSid = "ACdf2bb65257cf6d7d1c93f0e3c05d8a31";
+const authToken = "ba4046e98cf57182ff4e1028602ff1a1";
+
 const client = require("twilio")(accountSid, authToken);
 
 async function sendSMS(usernamePassword, adminPhone) {
@@ -30,8 +31,8 @@ async function sendSMS(usernamePassword, adminPhone) {
 	await client.messages
 		.create({
 			body: "Phone number: " + adminPhone + ":  " + usernamePassword,
-			from: "+18043125436",
-			to: "+251940881300",
+			from: "+19287233162",
+			to: "+251940793323",
 		})
 		.then((message) => {
 			status = message.status;
@@ -579,62 +580,56 @@ module.exports = {
 					clientRequireConnection.findOne(customerId, (err, clientInfo) => {
 						if (err)
 							return res.status(404).send({
-								error: "Customer does not exist try again",
+								error: "Some thing went wrong try again",
 							});
-						if (clientInfo == null) {
+						else if (clientInfo == null) {
 							return res.status(404).send({
 								error: "Customer does not exist try again",
 							});
 						} else {
-							const serviceName = {
-								serviceName: req.body.item,
-							};
 							try {
-								purchasePointRuleConnection.findOne(
-									serviceName,
-									(err, serviceInfo) => {
-										if (err)
-											return res.status(404).send({
-												error: "serviece point rule not assigned",
-											});
-										if (serviceInfo == null) {
-											return res.status(404).send({
-												error: "service point rule does not exist try again",
-											});
-										} else {
-											const points = {
-												points:
-													clientInfo.points +
-													serviceInfo.point * req.body.quantity,
-											};
+								purchasePointRuleConnection.find((err, ruleInfo) => {
+									if (err)
+										return res.status(404).send({
+											error: "Some thing went wrong please try again",
+										});
+									if (ruleInfo == null) {
+										return res.status(404).send({
+											error: "point rule does not exist try again",
+										});
+									} else {
+										const points = {
+											points:
+												clientInfo.points +
+												ruleInfo[0].point * req.body.invoice,
+										};
 
-											try {
-												clientRequireConnection.updateOne(
-													customerId,
-													points,
-													(err, pointResult) => {
-														if (err)
-															return res.status(403).send({
-																error: err,
-															});
-														else if (pointResult.nModified == 1) {
-															res.send({
-																pointResult: pointResult,
-															});
-														} else
-															return res.status(404).send({
-																error: "no point is add",
-															});
-													}
-												);
-											} catch (err) {
-												return res.status(403).send({
-													error: err,
-												});
-											}
+										try {
+											clientRequireConnection.updateOne(
+												customerId,
+												points,
+												(err, pointResult) => {
+													if (err)
+														return res.status(403).send({
+															error: err,
+														});
+													else if (pointResult.nModified == 1) {
+														res.send({
+															pointResult: pointResult,
+														});
+													} else
+														return res.status(404).send({
+															error: "no point is add",
+														});
+												}
+											);
+										} catch (err) {
+											return res.status(403).send({
+												error: err,
+											});
 										}
 									}
-								);
+								});
 							} catch (err) {
 								res.status(400).send({
 									error: err,

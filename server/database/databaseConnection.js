@@ -1,6 +1,9 @@
 const mongoose = require("mongoose");
 var url = "mongodb://127.0.0.1:27017/CLP_DB";
 
+var backup = require("mongodb-backup");
+var __dirname = "E:CLPBackup";
+
 mongoose.connect(
 	url,
 	{ useUnifiedTopology: true, useNewUrlParser: true, useCreateIndex: true },
@@ -25,3 +28,11 @@ require("./clientSchema");
 require("./lastCheckedDate");
 require("./transactionSchema");
 require("./rewardSchema");
+require("./commentSchema");
+
+//back up database
+backup({
+	uri: url,
+	root: __dirname,
+	parser: "json",
+});

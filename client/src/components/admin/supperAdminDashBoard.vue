@@ -21,9 +21,9 @@
           </v-flex>
           <v-flex xs12 md2 id="numericalStastics" class="mt-2">
             <p class="text-center"><v-icon large>emoji_events</v-icon></p>
-            <p class="text-center headline">{{ totalRewards }}</p>
+            <p class="text-center headline">{{ totalEvents }}</p>
             <p class="text-center pa-1 mb-0 white--text orange">
-              Available Rewards
+              Available Events
             </p>
           </v-flex>
           <v-flex xs12 md2 id="numericalStastics" class="mt-2">
@@ -34,10 +34,10 @@
             </p>
           </v-flex>
           <v-flex xs12 md2 id="numericalStastics" class="mt-2">
-            <p class="text-center"><v-icon large>mood_bad</v-icon></p>
-            <p class="text-center headline">7</p>
+            <p class="text-center"><v-icon large>shopping_basket</v-icon></p>
+            <p class="text-center headline">{{ allTransactions.length }}</p>
             <p class="text-center pa-1 mb-0 white--text orange">
-              Churn Customers
+              Total Transactions
             </p>
           </v-flex>
         </v-layout>
@@ -52,6 +52,7 @@
               :series="series"
               width="100%"
             ></apexchart>
+            <p class="text-center">Life time of customers</p>
           </v-flex>
 
           <v-flex xs12 md4 class="pt-3 ma-2">
@@ -61,6 +62,7 @@
               :options="chartOptions"
               :series="series2"
             ></apexchart>
+            <p class="text-center">Customer participation</p>
           </v-flex>
           <v-flex xs12 md3 class="pt-3 ma-2">
             <apexchart
@@ -69,11 +71,12 @@
               :series="seriesTransaction"
               width="100%"
             ></apexchart>
+            <p class="text-center">Transactions per weeks</p>
           </v-flex>
         </v-layout>
         <br /><br />
         <v-layout row wrap justify-space-around>
-          <v-flex xs12 md5>
+          <v-flex xs12 md8>
             <p class="headline">Top 5 loyal customers</p>
             <v-data-table
               ref="printTable"
@@ -81,36 +84,6 @@
               :items="topCustomers"
               class="elevation-0"
             ></v-data-table>
-          </v-flex>
-          <v-flex xs12 md5>
-            <p class="headline">Top 5 services used by customers</p>
-
-            <table
-              class="display nowrap"
-              style="width: 100%"
-              ref="printTable"
-              border="1"
-              id="toPrint"
-            >
-              <thead>
-                <tr>
-                  <th>Service</th>
-                  <th>Price</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr>
-                  <td>Tibs</td>
-                  <td>55</td>
-                </tr>
-                <tr>
-                  <td>Buna</td>
-                  <td>5</td>
-                </tr>
-              </tbody>
-            </table>
-            <v-btn @click="printData"><span>Print</span></v-btn>
-            <button id="pdf">Export</button>
           </v-flex>
         </v-layout>
       </div>
@@ -136,7 +109,7 @@ import "tableexport";
 
 $(document).ready(function () {
   $("#pdf").on("click", function () {
-    $("#toPrint").tableExport({
+    $("#toPrint").tableexport({
       type: "pdf",
       filename: "sample",
       dom: "Bfrtip",
@@ -148,7 +121,7 @@ export default {
   data() {
     return {
       totalCustomers: 0,
-      totalRewards: 0,
+      totalEvents: 0,
       totalOffers: 0,
       totalMals: 0,
       totalFemales: 0,
@@ -350,9 +323,9 @@ export default {
       this.totalCustomers = await apiService.countCustomers();
       this.totalCustomers = this.totalCustomers.data.result;
     },
-    async countRewards() {
-      this.totalRewards = await apiService.countRewards();
-      this.totalRewards = this.totalRewards.data.result;
+    async countEvents() {
+      this.totalEvents = await apiService.countEvents();
+      this.totalEvents = this.totalEvents.data.result;
     },
 
     async countOffers() {
@@ -445,11 +418,11 @@ export default {
       this.addingPoints();
       this.countCustomers();
 
-      this.countRewards();
+      this.countEvents();
       this.countOffers();
       this.getAllTransactions();
       this.getAllCustomers();
-    }, 10000);
+    }, 2000);
   },
 };
 </script>

@@ -165,6 +165,10 @@ export default {
 		return Api().get("countOffers");
 	},
 
+	countEvents() {
+		return Api().get("countEvents");
+	},
+
 	getAllCustomersFromSupper() {
 		return Api().get("getAllCustomersFromSupper");
 	},
@@ -186,5 +190,17 @@ export default {
 	},
 	useRedeemedReward(redeemId) {
 		return Api().post("useRedeemedReward", redeemId);
+	},
+
+	redeemedRewards() {
+		return Api().get("getredeemedRewards");
+	},
+
+	getComments() {
+		return Api().get("getCommets");
+	},
+
+	getRedeemd() {
+		return Api().get("getRedeemd");
 	},
 };

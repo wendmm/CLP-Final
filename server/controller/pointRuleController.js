@@ -11,25 +11,44 @@ module.exports = {
 	async addPurchasePointRules(req, res) {
 		const purchaseCollection = new purchasePointRuleModel();
 
-		purchaseCollection.serviceName = req.body.serviceName;
-		purchaseCollection.servicePrice = req.body.servicePrice;
 		purchaseCollection.point = req.body.point;
+		purchaseCollection.pointToBirr = req.body.pointToBirr;
+		purchaseCollection.pointExpiryDate = req.body.pointExpiryDate;
+		purchaseCollection.maxLimitPoint = req.body.maxLimitPoint;
 
 		try {
-			await purchaseCollection.save((err, point) => {
+			await purchasePointRuleConnection.find((err, purchasePointRules) => {
 				if (err) {
 					return res.status(403).send({
-						error:
-							"point already set with the same service name. Please try with other service",
+						error: err,
 					});
-				} else if (point != "") {
-					return res.send({
-						point: point,
+				}
+				if (purchasePointRules == "") {
+					try {
+						purchaseCollection.save((err, point) => {
+							if (err) {
+								return res.status(403).send({
+									error: err,
+								});
+							} else if (point != "") {
+								return res.send({
+									point: point,
+								});
+							} else
+								return res.status(403).send({
+									error: "point not set",
+								});
+						});
+					} catch (err) {
+						res.status(400).send({
+							error: err,
+						});
+					}
+				} else {
+					return res.status(404).send({
+						error: "Point rule already registered",
 					});
-				} else
-					return res.status(403).send({
-						error: "point not set",
-					});
+				}
 			});
 		} catch (err) {
 			res.status(400).send({
@@ -66,8 +85,12 @@ module.exports = {
 		const purchasePointId = {
 			_id: req.body.purchasePointId,
 		};
+
 		const purchasePoint = {
 			point: req.body.point,
+			pointToBirr: req.body.pointToBirr,
+			pointExpiryDate: req.body.pointExpiryDate,
+			maxLimitPoint: req.body.maxLimitPoint,
 		};
 		try {
 			await purchasePointRuleConnection.updateOne(

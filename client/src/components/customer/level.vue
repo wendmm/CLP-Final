@@ -373,7 +373,7 @@ export default {
 
     async deleteLevel(item) {
       const deleteConfirmation = confirm(
-        "Are you sure you want to delete this(these) offer(s) ?"
+        "Are you sure you want to delete this(these) level(s) ?"
       );
       if (deleteConfirmation) {
         let count = 0;

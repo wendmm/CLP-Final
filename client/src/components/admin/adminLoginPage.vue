@@ -68,7 +68,11 @@
             </v-btn>
           </v-flex>
           <v-flex xs11 md11>
-            <v-btn text class="white mt-10 pl-10 pr-10">
+            <v-btn
+              text
+              class="white mt-10 pl-10 pr-10"
+              @click="$router.push({ name: 'forgotPassword' })"
+            >
               <a class="text-capitalize">Forgot password</a>
             </v-btn>
           </v-flex>

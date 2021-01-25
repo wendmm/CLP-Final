@@ -38,13 +38,13 @@
             >
               <template v-slot:top>
                 <v-layout row wrap justify-space-around>
-                  <v-flex xs12 md2>
-                    <v-switch
+                  <!--  <v-flex xs12 md2>
+                   <v-switch
                       v-model="purchaseSingleSelect"
                       label="Single select"
                       class="pa-3"
                     ></v-switch>
-                  </v-flex>
+                  </v-flex>-->
                   <v-flex
                     xs12
                     md2
@@ -65,14 +65,18 @@
                   </v-flex>
 
                   <v-flex xs12 md2 class="mt-5">
-                    <v-dialog max-width="400px" v-model="purchaseDialog">
+                    <v-dialog
+                      max-width="400px"
+                      v-model="purchaseDialog"
+                      v-if="$store.state.admin.actor == 'supper'"
+                    >
                       <template v-slot:activator="{ on }">
                         <v-btn
                           dark
                           v-on="on"
                           text
                           class="green"
-                          @click="getAllServiceName"
+                          @click="purchasePointAdd"
                         >
                           <span class="text-capitalize">Add</span>
                         </v-btn>
@@ -95,23 +99,52 @@
                           </p>
                           <v-layout row wrap class="pl-10 pr-10">
                             <v-flex xs12 md12>
-                              <v-select
+                              <span>For 1 Birr</span>
+                              <v-text-field
+                                v-model="purchasePoint"
+                                label="Give point"
+                                type="number"
+                                min="0"
+                              >
+                              </v-text-field>
+                              <!--  <v-select
                                 v-if="whatToDo == 'add'"
                                 :items="allServiceNames"
                                 label="Choose service"
                                 v-model="selectedService"
                                 @change="getServicePrice"
-                              ></v-select>
+                              ></v-select>-->
                               <p
-                                v-if="servicePrice"
+                                v-if="purchasePoint"
                                 class="red--text text-center"
                               >
-                                Service Price: {{ servicePrice }} Birr
+                                For 100 birr: {{ purchasePoint * 100 }} Points
                               </p>
                               <br />
+                              <span>For 1 point</span>
                               <v-text-field
-                                v-model="purchasePoint"
-                                label="Give purchase point"
+                                v-model="pointToBirr"
+                                label="Give birr"
+                                type="number"
+                                min="0"
+                              >
+                              </v-text-field>
+                              <p
+                                v-if="pointToBirr"
+                                class="red--text text-center"
+                              >
+                                For 100 points: {{ pointToBirr * 100 }} birr
+                              </p>
+                              <v-text-field
+                                v-model="pointExpiryDate"
+                                label="Point expiration duration in days"
+                                type="number"
+                                min="0"
+                              >
+                              </v-text-field>
+                              <v-text-field
+                                v-model="maxLimitPoint"
+                                label="Maximum limit point"
                                 type="number"
                                 min="0"
                               >
@@ -134,7 +167,7 @@
                       </v-card>
                     </v-dialog>
                   </v-flex>
-                  <v-flex xs12 md3 class="mr-5 ml-5" offest-2>
+                  <!--   <v-flex xs12 md3 class="mr-5 ml-5" offest-2>
                     <v-text-field
                       class="mt-2"
                       v-model="purchaseSearch"
@@ -142,10 +175,13 @@
                       label="Search"
                       append-icon="search"
                     ></v-text-field>
-                  </v-flex>
+                  </v-flex>-->
                 </v-layout>
               </template>
-              <template v-slot:[`item.actions`]="{ item }">
+              <template
+                v-slot:[`item.actions`]="{ item }"
+                v-if="$store.state.admin.actor == 'supper'"
+              >
                 <div
                   v-if="
                     allPurchasePointRules.indexOf(selectedPurchasePoint[0]) ==
@@ -363,6 +399,9 @@ export default {
     purchaseItemToUpdate: "",
     servicePrice: "",
     purchasePoint: "",
+    pointToBirr: "",
+    pointExpiryDate: "",
+    maxLimitPoint: "",
     addingPointRuleError: "",
     addingPointRuleSuccess: "",
     purchasePointAddLoading: false,
@@ -395,12 +434,13 @@ export default {
     listOfOtherRules: ["Sign Up", "Refer to Friend", "Share"],
     headers: [
       {
-        text: "Causes",
+        text: "Point/birr",
         align: "left",
-        value: "serviceName",
+        value: "point",
       },
-      { text: "Service Price", value: "servicePrice" },
-      { text: "Points", value: "point" },
+      { text: "Birr/Point", value: "pointToBirr" },
+      { text: "Duration", value: "pointExpiryDate" },
+      { text: "Max limit", value: "maxLimitPoint" },
       { text: "Actions", value: "actions" },
     ],
     otherHeaders: [
@@ -420,62 +460,70 @@ export default {
       this.whatToDoOther = "add";
       this.otherPointRegOrUpdateTitle = "Add other earning point rule";
     },
-    async getAllServiceName() {
+
+    purchasePointAdd() {
       this.whatToDo = "add";
       this.purchasePointRegOrUpdateTitle = "Purchase point rule registration";
-      this.getAllServiceError = "";
-      try {
-        const response = await apiService.getAllServices();
-        this.getAllServices = response.data.allServices;
-        let count = 0;
-        for (count = 0; count < this.getAllServices.length; count++) {
-          this.allServiceNames.push(this.getAllServices[count].serviceName);
-        }
-      } catch (error) {
-        if (error.response) {
-          if (error.response.data.error == 0) {
-            this.$store.dispatch("setAdmin", "");
-            this.$store.dispatch("setAdminToken", "");
-            this.$store.dispatch("setSession", false);
-            this.$router.push({ name: "adminLoginPage" });
-          } else {
-            this.getAllServiceError = error.response.data.error;
-          }
-        } else this.getAllServiceError = "Connection to server failed";
-        setTimeout(() => {
-          this.getAllServiceError = "";
-        }, 10000);
-      }
     },
+    // async getAllServiceName() {
+    //   this.whatToDo = "add";
+    //   this.purchasePointRegOrUpdateTitle = "Purchase point rule registration";
+    //   this.getAllServiceError = "";
+    //   try {
+    //     const response = await apiService.getAllServices();
+    //     this.getAllServices = response.data.allServices;
+    //     let count = 0;
+    //     for (count = 0; count < this.getAllServices.length; count++) {
+    //       this.allServiceNames.push(this.getAllServices[count].serviceName);
+    //     }
+    //   } catch (error) {
+    //     if (error.response) {
+    //       if (error.response.data.error == 0) {
+    //         this.$store.dispatch("setAdmin", "");
+    //         this.$store.dispatch("setAdminToken", "");
+    //         this.$store.dispatch("setSession", false);
+    //         this.$router.push({ name: "adminLoginPage" });
+    //       } else {
+    //         this.getAllServiceError = error.response.data.error;
+    //       }
+    //     } else this.getAllServiceError = "Connection to server failed";
+    //     setTimeout(() => {
+    //       this.getAllServiceError = "";
+    //     }, 10000);
+    //   }
+    // },
 
-    getServicePrice() {
-      let index = 0;
-      for (index = 0; index < this.getAllServices.length; index++) {
-        if (this.selectedService == this.getAllServices[index].serviceName) {
-          this.servicePrice = this.getAllServices[index].servicePrice;
-          // this.serviceImage = this.getAllServices[index].serviceImage;
-          // this.selectedServiceCatagory = this.getAllServices[
-          //   index
-          // ].selectedServiceCatagory;
-          // this.selectedServiceSubCatagory = this.getAllServices[
-          //   index
-          // ].selectedServiceSubCatagory;
-          break;
-        }
-      }
-    },
+    // getServicePrice() {
+    //   let index = 0;
+    //   for (index = 0; index < this.getAllServices.length; index++) {
+    //     if (this.selectedService == this.getAllServices[index].serviceName) {
+    //       this.servicePrice = this.getAllServices[index].servicePrice;
+    //       this.serviceImage = this.getAllServices[index].serviceImage;
+    //       this.selectedServiceCatagory = this.getAllServices[
+    //         index
+    //       ].selectedServiceCatagory;
+    //       this.selectedServiceSubCatagory = this.getAllServices[
+    //         index
+    //       ].selectedServiceSubCatagory;
+    //       break;
+    //     }
+    //   }
+    // },
 
     async savePurchasePoint() {
-      if (this.selectedService == "" || this.purchasePoint == "") {
-        this.addingPointRuleError = "Please fill all the requirements";
-      } else {
+      if (
+        this.purchasePoint > 0 &&
+        this.pointToBirr > 0 &&
+        this.pointExpiryDate > 0
+      ) {
         if (this.whatToDo == "add") {
           this.purchasePointAddLoading = true;
           try {
             const response = await apiService.addPurchasePointRules({
-              serviceName: this.selectedService,
-              servicePrice: this.servicePrice,
               point: this.purchasePoint,
+              pointToBirr: this.pointToBirr,
+              pointExpiryDate: this.pointExpiryDate,
+              maxLimitPoint: this.maxLimitPoint,
             });
             this.purchasePointAddLoading = false;
             this.addingPointRuleError = "";
@@ -502,6 +550,9 @@ export default {
             await apiService.updatePurchasePointRules({
               purchasePointId: this.purchaseItemToUpdate._id,
               point: this.purchasePoint,
+              pointToBirr: this.pointToBirr,
+              pointExpiryDate: this.pointExpiryDate,
+              maxLimitPoint: this.maxLimitPoint,
             });
             this.purchasePointAddLoading = false;
             this.addingPointRuleError = "";
@@ -511,9 +562,10 @@ export default {
                 this.allPurchasePointRules.indexOf(this.purchaseItemToUpdate)
               ],
               {
-                serviceName: this.selectedService,
-                servicePrice: this.servicePrice,
                 point: this.purchasePoint,
+                pointToBirr: this.pointToBirr,
+                pointExpiryDate: this.pointExpiryDate,
+                maxLimitPoint: this.maxLimitPoint,
               }
             );
 
@@ -534,6 +586,8 @@ export default {
             } else this.addingPointRuleError = "Connection to server failed";
           }
         }
+      } else {
+        this.addingPointRuleError = "Please fill all the requirements";
       }
       setTimeout(() => {
         this.addingPointRuleError = "";
@@ -624,8 +678,9 @@ export default {
       this.purchaseItemToUpdate = item;
 
       this.purchasePoint = item.point;
-      this.servicePrice = item.servicePrice;
-      this.selectedService = item.serviceName;
+      this.pointToBirr = item.pointToBirr;
+      this.pointExpiryDate = item.pointExpiryDate;
+      this.maxLimitPoint = item.maxLimitPoint;
     },
     editOtherPoint(item) {
       this.whatToDoOther = "update";

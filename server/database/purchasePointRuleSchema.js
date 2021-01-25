@@ -2,12 +2,10 @@ const mongoose = require("mongoose");
 mongoose.pluralize(null);
 
 var purchasePointRuleSchema = new mongoose.Schema({
-	serviceName: {
-		type: String,
-		unique: true,
-	},
-	servicePrice: Number,
 	point: Number,
+	pointToBirr: Number,
+	pointExpiryDate: Number,
+	maxLimitPoint: Number,
 });
 var purchasePointRuleSchema = mongoose.model(
 	"purchasePointRuleCollection",

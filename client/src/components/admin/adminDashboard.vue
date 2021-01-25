@@ -62,18 +62,18 @@
               :series="series2"
             ></apexchart>
           </v-flex>
-          <v-flex xs12 md3 class="pt-3 ma-2">
+          <!--     <v-flex xs12 md3 class="pt-3 ma-2">
             <apexchart
               type="line"
               :options="optionsTransaction"
               :series="seriesTransaction"
               width="100%"
             ></apexchart>
-          </v-flex>
+          </v-flex>-->
         </v-layout>
         <br /><br />
         <v-layout row wrap justify-space-around>
-          <v-flex xs12 md5>
+          <v-flex xs12 md8>
             <p class="headline">Top 5 loyal customers</p>
             <v-data-table
               ref="printTable"
@@ -81,36 +81,6 @@
               :items="topCustomers"
               class="elevation-0"
             ></v-data-table>
-          </v-flex>
-          <v-flex xs12 md5>
-            <p class="headline">Top 5 services used by customers</p>
-
-            <table
-              class="display nowrap"
-              style="width: 100%"
-              ref="printTable"
-              border="1"
-              id="toPrint"
-            >
-              <thead>
-                <tr>
-                  <th>Service</th>
-                  <th>Price</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr>
-                  <td>Tibs</td>
-                  <td>55</td>
-                </tr>
-                <tr>
-                  <td>Buna</td>
-                  <td>5</td>
-                </tr>
-              </tbody>
-            </table>
-            <v-btn @click="printData"><span>Print</span></v-btn>
-            <button id="pdf">Export</button>
           </v-flex>
         </v-layout>
       </div>
@@ -442,14 +412,14 @@ export default {
   },
   created() {
     setInterval(() => {
-      this.addingPoints();
+      // this.addingPoints();
       this.countCustomers();
 
       this.countRewards();
       this.countOffers();
       this.getAllTransactions();
       this.getAllCustomers();
-    }, 10000);
+    }, 1000);
   },
 };
 </script>

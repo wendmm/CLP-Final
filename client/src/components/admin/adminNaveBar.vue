@@ -6,7 +6,6 @@
       app
       dark
       class="orange darken-4"
-      height="50"
       v-if="!$store.state.isAdminLoggedIn"
     >
       <v-app-bar-nav-icon
@@ -16,6 +15,10 @@
       >
         <v-icon large class="white--text">dehaze</v-icon>
       </v-app-bar-nav-icon>
+
+      <v-avatar size="60">
+        <v-img src="../../assets/clp.png"></v-img>
+      </v-avatar>
 
       <v-toolbar-title class="ml-10">
         <span class="display-1 white--text">Loyalty|</span>
@@ -45,7 +48,7 @@
             </v-list-item>
             <v-list-item id="menuItem">
               <v-list-item-title>
-                <a target="_blank" href="/Help/index.htm">Help</a>
+                <a target="_blank" href="/CLPManual/index.htm">Help</a>
               </v-list-item-title>
             </v-list-item>
             <v-list-item
@@ -71,7 +74,7 @@
           <a
             class="white--text text-capitalize"
             target="_blank"
-            href="/Help/index.htm"
+            href="/CLPManual/index.htm"
             >Help</a
           >
         </v-btn>
@@ -90,7 +93,6 @@
       app
       dark
       class="orange darken-4"
-      height="50"
       v-if="$store.state.admin.actor == 'branch'"
     >
       <v-app-bar-nav-icon
@@ -100,6 +102,9 @@
       >
         <v-icon large class="white--text">dehaze</v-icon>
       </v-app-bar-nav-icon>
+      <v-avatar size="60">
+        <v-img src="../../assets/clp.png"></v-img>
+      </v-avatar>
 
       <v-toolbar-title class="ml-10">
         <span class="display-1 white--text">Loyalty|</span>
@@ -129,7 +134,7 @@
             </v-list-item>
             <v-list-item id="menuItem">
               <v-list-item-title>
-                <a target="_blank" href="/Help/index.htm"
+                <a target="_blank" href="/CLPManual/index.htm"
                   >Help</a
                 ></v-list-item-title
               >
@@ -144,10 +149,10 @@
           </v-list>
         </v-menu>
       </div>
-      <v-avatar size="40">
-        <a>
+      <v-avatar size="40" v-if="allRedeemed.length > 0">
+        <a @click="navigator({ name: 'notification' })">
           <v-icon class="white--text">notifications</v-icon>
-          <span class="white--text">7</span>
+          <span class="white--text">{{ allRedeemed.length }}</span>
         </a>
       </v-avatar>
       <div class="hidden-xs-only hidden-sm-only">
@@ -162,7 +167,7 @@
           <a
             class="white--text text-capitalize"
             target="_blank"
-            href="/Help/index.htm"
+            href="/CLPManual/index.htm"
             >Help</a
           >
         </v-btn>
@@ -181,7 +186,6 @@
       app
       dark
       class="orange darken-4"
-      height="40"
       v-if="$store.state.admin.actor == 'supper'"
     >
       <v-app-bar-nav-icon
@@ -193,7 +197,11 @@
       </v-app-bar-nav-icon>
 
       <v-toolbar-title class="ml-10">
-        <span class="white--text display-1">Logo</span>
+        <v-avatar size="60">
+          <v-img src="../../assets/clp.png"></v-img>
+        </v-avatar>
+        <span class="display-1 white--text">Loyalty|</span>
+        <span class="headline">program</span>
       </v-toolbar-title>
 
       <v-spacer></v-spacer>
@@ -379,7 +387,7 @@
           </dt>
         </v-btn>
 
-        <v-btn text id="sideBarBtns">
+        <v-btn text id="sideBarBtns" @click="navigator({ name: 'comment' })">
           <dt class="white--text pl-4 pt-2 pb-2 text-capitalize">
             <v-icon class="yellow--text" left>comment</v-icon>Comments
           </dt>
@@ -427,7 +435,7 @@
         </v-flex>
 
         <v-flex xs6 class="mt-8">
-          <span class="white--text pl-2 text-capitalize">
+          <span class="white--text text-capitalize">
             {{ $store.state.admin.firstName }}&nbsp;{{
               $store.state.admin.middleName
             }}
@@ -461,47 +469,24 @@
             <v-icon class="yellow--text" left>device_hub</v-icon>Branch
           </dt>
         </v-btn>
-        <v-btn text @click="reportClicked = !reportClicked" id="sideBarBtns">
+        <v-btn
+          text
+          @click="navigator({ name: 'earningPointRules' })"
+          id="sideBarBtns"
+        >
           <dt class="white--text pl-4 pt-2 pb-2 text-capitalize">
-            <v-icon class="yellow--text" left>signal_cellular_alt</v-icon>Report
-            <v-icon class="mr-0 ml-4 white--text" right v-if="!reportClicked"
-              >navigate_next</v-icon
-            >
-            <v-icon class="mr-0 ml-4 white--text" right v-if="reportClicked"
-              >expand_more</v-icon
-            >
+            <v-icon class="yellow--text" left>signal_cellular_alt</v-icon>Point
+            Rule
           </dt>
-        </v-btn>
-        <v-btn
-          text
-          v-if="reportClicked"
-          id="sideBarBtns"
-          @click="navigator({ name: 'earningPointRules' })"
-        >
-          <dd class="white--text pt-2 pb-2 text-capitalize">
-            &nbsp;&nbsp;&nbsp;
-            <v-icon class="blue--text" left>group</v-icon>
-            <span>Customer</span>
-          </dd>
-        </v-btn>
-        <v-btn
-          text
-          v-if="reportClicked"
-          id="sideBarBtns"
-          @click="navigator({ name: 'earningPointRules' })"
-        >
-          <dd class="white--text pt-2 pb-2 text-capitalize">
-            &nbsp;&nbsp;&nbsp;
-            <v-icon class="blue--text" left>restaurant</v-icon>
-            <span>Services</span>
-          </dd>
         </v-btn>
       </dl>
     </v-navigation-drawer>
   </div>
 </template>
 
+
 <script>
+import apiService from "../../services/apiService";
 export default {
   data() {
     return {
@@ -509,6 +494,7 @@ export default {
       editAdminProfile: false,
       compaignClicked: false,
       reportClicked: false,
+      allRedeemed: [],
     };
   },
   methods: {
@@ -526,6 +512,22 @@ export default {
     mouseleave: function () {
       this.editAdminProfile = false;
     },
+  },
+  async created() {
+    try {
+      const response = await apiService.getRedeemd();
+
+      this.allRedeemed = response.data.redeemed;
+    } catch (error) {
+      if (error.response) {
+        if (error.response.data.error == 0) {
+          this.$store.dispatch("setAdmin", "");
+          this.$store.dispatch("setAdminToken", "");
+          this.$store.dispatch("setSession", false);
+          this.$router.push({ name: "adminLoginPage" });
+        }
+      }
+    }
   },
 };
 </script>

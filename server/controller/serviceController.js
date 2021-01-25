@@ -3,8 +3,6 @@ const serviceConnectionModel = mongoose.model("serviceCollection");
 const serviceCatagoryModel = mongoose.model("catagoryCollection");
 const allServicesConnection = require("../database/serviceSchema");
 const catagoryConnection = require("../database/catagorySchema");
-//const getAllServicesConnection = require("../database/serviceSchema");
-//const catagoryDB = require("../database/catagorySchema");
 
 module.exports = {
 	async serviceRegistration(req, res) {
@@ -308,66 +306,4 @@ module.exports = {
 			});
 		}
 	},
-
-	// async getServiceName(req, res) {
-	// 	try {
-	// 		await allServicesConnection.find(
-	// 			{
-	// 				$and: [
-	// 					{ selectedServiceCatagory: req.body.selectedServiceCatagory },
-	// 					{ selectedServiceSubCatagory: req.body.selectedServiceSubCatagory },
-	// 				],
-	// 			},
-	// 			(err, serviceName) => {
-	// 				if (err) {
-	// 					return res.status(403).send({
-	// 						error: err,
-	// 					});
-	// 				}
-	// 				if (serviceName == "") {
-	// 					return res.status(400).send({
-	// 						error: "There is no service",
-	// 					});
-	// 				} else {
-	// 					res.send(serviceName);
-	// 				}
-	// 			}
-	// 		);
-	// 	} catch (err) {
-	// 		res.status(400).send({
-	// 			error: err,
-	// 		});
-	// 	}
-	// },
-	// async getServicePrice(req, res) {
-	// 	try {
-	// 		await allServicesConnection.find(
-	// 			{
-	// 				$and: [
-	// 					{ selectedServiceCatagory: req.body.selectedServiceCatagory },
-	// 					{ selectedServiceSubCatagory: req.body.selectedServiceSubCatagory },
-	// 					{ serviceName: req.body.selectedServiceName },
-	// 				],
-	// 			},
-	// 			(err, servicePrice) => {
-	// 				if (err) {
-	// 					return res.status(403).send({
-	// 						error: err,
-	// 					});
-	// 				}
-	// 				if (servicePrice == "") {
-	// 					return res.status(400).send({
-	// 						error: "There is no service",
-	// 					});
-	// 				} else {
-	// 					res.send(servicePrice);
-	// 				}
-	// 			}
-	// 		);
-	// 	} catch (err) {
-	// 		res.status(400).send({
-	// 			error: err,
-	// 		});
-	// 	}
-	// },
 };

@@ -93,6 +93,7 @@ module.exports = (app) => {
 	//reward
 	app.post("/saveReward", isAuthenticated, rewardController.saveReward);
 	app.get("/getAllRewards", rewardController.getAllRewards);
+	app.get("/getredeemedRewards", clientController.usedRewards);
 	app.post("/updateReward", isAuthenticated, rewardController.updateReward);
 	app.post("/deleteReward", isAuthenticated, rewardController.deleteReward);
 	app.post("/deleteLevel", isAuthenticated, levelController.deleteLevel);
@@ -110,10 +111,14 @@ module.exports = (app) => {
 	app.post("/getProfileImage", clientController.getProfileImage);
 	app.post("/updateClient", clientController.updateClient);
 	app.get("/getAllCustomers", clientController.getAllCustomers);
+	app.post("/getCustomerById", clientController.getCustomerById);
 	app.post("/updateLike", offerController.updateLike);
 	app.get("/getRecommondation", clientController.getRecommondation);
 	app.post("/redeemReward", clientController.redeemReward);
 	app.post("/getCustomer", clientController.getCustomer);
+	app.post("/giveComment", clientController.giveComment);
+	app.get("/getCommets", clientController.getCommets);
+	app.get("/getRedeemd", clientController.getRedeemd);
 	app.post(
 		"/getRedeemReward",
 		isAuthenticated,
@@ -174,6 +179,7 @@ module.exports = (app) => {
 
 	app.get("/countRewards", isAuthenticated, rewardController.countRewards);
 	app.get("/countOffers", isAuthenticated, offerController.countOffers);
+	app.get("/countEvents", isAuthenticated, eventController.countEvents);
 	app.get(
 		"/getAllCustomersFromSupper",
 		isAuthenticated,

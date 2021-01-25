@@ -109,6 +109,42 @@
           </v-flex>
         </v-layout>
       </v-form>
+      <div class="text-center">
+        <v-btn text @click="passwordDialog = true">
+          <span class="text-capitalize blue--text">Change Password</span>
+        </v-btn>
+      </div>
+      <v-dialog v-model="passwordDialog" max-width="400px">
+        <v-card>
+          <v-card-title>
+            <span class="headline"> Change password </span>
+            <v-spacer></v-spacer>
+          </v-card-title>
+          <v-card-text>
+            <v-layout row wrap justify-space-around class="pa-3">
+              <v-flex xs12>
+                <v-text-field
+                  label="New Password"
+                  v-model="newPassword"
+                  prepend-icon="lock"
+                  type="password"
+                ></v-text-field>
+              </v-flex>
+              <v-flex xs12>
+                <v-text-field
+                  type="password"
+                  label="Retype Password"
+                  v-model="rePassword"
+                  prepend-icon="lock"
+                ></v-text-field>
+              </v-flex>
+              <v-btn text @click="changePassword">
+                <span class="text-capitalize blue--text">Save</span>
+              </v-btn>
+            </v-layout>
+          </v-card-text>
+        </v-card>
+      </v-dialog>
     </div>
     <p class="text-center red--text" v-else>You don't have access'</p>
   </div>
@@ -123,6 +159,7 @@ export default {
       adminUpdateError: "",
       isValidityChecked: false,
       adminImageBinary: "",
+      passwordDialog: false,
       firstName: "",
       middleName: "",
       lastName: "",
@@ -130,6 +167,9 @@ export default {
       address: "",
       imagePreview: "",
       adminPicture: "",
+
+      newPassword: "",
+      rePassword: "",
 
       loading: false,
 
@@ -160,6 +200,31 @@ export default {
       reader.onload = (e) => {
         this.imagePreview = e.target.result;
       };
+    },
+
+    async changePassword() {
+      if (this.newPassword == this.rePassword) {
+        try {
+          await apiService.updatePassword({
+            _id: this.$store.state.admin._id,
+            adminPassword: this.newPassword,
+          });
+        } catch (error) {
+          this.loading = false;
+          this.adminUpdateSuccess = "";
+          if (error.response) {
+            if (error.response.data.error == 0) {
+              this.$store.dispatch("setAdmin", "");
+              this.$store.dispatch("setAdminToken", "");
+              this.$store.dispatch("setSession", false);
+              this.$router.push({ name: "adminLoginPage" });
+            } else {
+              this.adminUpdateError = error.response.data.error;
+              window.scrollTo(0, 0);
+            }
+          } else this.adminUpdateError = "Connection to server failed";
+        }
+      } else this.adminUpdateError = "Password not confirmed";
     },
     async updateProfile() {
       if (this.isValidityChecked) {

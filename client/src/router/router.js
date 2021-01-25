@@ -7,6 +7,7 @@ import serviceDisplay from "../components/service/services";
 import customers from "../components/customer/customer";
 import level from "../components/customer/level";
 import rewards from "../components/customer/reward";
+import comment from "../components/customer/comment";
 import earningPointRules from "../components/campaign/earningPointRules";
 import offers from "../components/campaign/offers";
 import event from "../components/campaign/event";
@@ -17,6 +18,8 @@ import transaction from "../components/service/transaction";
 import report from "../components/report/report";
 import redeem from "../components/admin/redeemption";
 import barcode from "../components/admin/barCodeGenerator";
+import notification from "../components/admin/notification";
+import forgotPassword from "../components/admin/forgotPassword";
 
 Vue.use(Router);
 
@@ -108,6 +111,22 @@ export default new Router({
 			path: "/bar",
 			name: "bar",
 			component: barcode,
+		},
+		{
+			path: "/comment",
+			name: "comment",
+			component: comment,
+		},
+		{
+			path: "/notification",
+			name: "notification",
+			component: notification,
+		},
+
+		{
+			path: "/forgotPassword",
+			name: "forgotPassword",
+			component: forgotPassword,
 		},
 	],
 });

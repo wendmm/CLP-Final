@@ -45,7 +45,7 @@ export default {
           value: "quantity",
         },
         {
-          text: "Invoice",
+          text: "Total price",
 
           value: "invoice",
         },

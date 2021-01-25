@@ -129,4 +129,28 @@ module.exports = {
 			});
 		}
 	},
+
+	async countEvents(req, res) {
+		try {
+			await eventConnection.countDocuments((err, result) => {
+				if (err) {
+					return res.status(403).send({
+						error: err,
+					});
+				} else if (result == 0) {
+					return res.status(404).send({
+						error: "error when counting",
+					});
+				} else {
+					res.send({
+						result: result,
+					});
+				}
+			});
+		} catch (err) {
+			res.status(403).send({
+				error: err,
+			});
+		}
+	},
 };

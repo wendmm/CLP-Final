@@ -591,6 +591,7 @@ export default {
             this.$router.push({ name: "adminLoginPage" });
           } else alert(err.response.data.error);
         } else alert("Connection to server failed");
+        this.$router.go();
       }
     },
     editBranch(item) {
@@ -646,6 +647,7 @@ export default {
             this.selectedBranch = [];
             count = 0;
           }
+          this.$router.go();
         } catch (err) {
           this.deleteBranchLoading = false;
           if (err.response) {
@@ -657,6 +659,7 @@ export default {
             } else alert(err.response.data.error);
           } else alert("Connection to server  failed");
         }
+        this.$router.go();
       }
     },
 
@@ -776,6 +779,7 @@ export default {
 
           this.allBranchs[this.allBranchs.indexOf(item)].branchAdminId = "";
           alert("Admin removed successfully");
+          this.$router.go();
         } catch (err) {
           this.deleteAdminLoading = false;
           if (err.response) {

@@ -8,10 +8,13 @@ const transactionConn = require("../database/transactionSchema");
 const otherPointRuleConnection = require("../database/otherPointRuleSchema");
 const rewardConnection = require("../database/rewardSchema");
 const redeemConnection = require("../database/redeemSchema");
+const commentConnection = require("../database/commentSchema");
+const serviceConnection = require("../database/serviceSchema");
 
 const passwordEncription = require("../Encription/passwordEncriptionComparison");
 const supperAdminController = require("./supperAdminController");
 const clientConnectionModel = mongoose.model("clientCollection");
+const commentConnectionModel = mongoose.model("commentCollection");
 
 const redeemConnectionModel = mongoose.model("redeemCollection");
 var fs = require("fs");
@@ -21,8 +24,9 @@ function generateRandomNumber(digit) {
 	return (Math.floor(Math.random() * digit) + digit).toString().substring(1);
 }
 
-const accountSid = "ACff9c925d0c376dfa1b3a754fa96d7c6c";
-const authToken = "37e99d71bfa9ddee063d3d11c3eae722";
+const accountSid = "ACdf2bb65257cf6d7d1c93f0e3c05d8a31";
+const authToken = "ba4046e98cf57182ff4e1028602ff1a1";
+
 const client = require("twilio")(accountSid, authToken);
 
 async function sendSMS(usernamePassword, adminPhone) {
@@ -30,8 +34,8 @@ async function sendSMS(usernamePassword, adminPhone) {
 	await client.messages
 		.create({
 			body: "Phone number: " + adminPhone + ":  " + usernamePassword,
-			from: "+18043125436",
-			to: "+251940881300",
+			from: "+19287233162",
+			to: "+251940793323",
 		})
 		.then((message) => {
 			status = message.status;
@@ -448,11 +452,11 @@ module.exports = {
 
 						for (let x = 0; x < finalItemSet.length; x++) {
 							const reward = {
-								rewardName: finalItemSet[x],
+								serviceName: finalItemSet[x],
 							};
 
 							try {
-								rewardConnection.findOne(reward, (err, reward) => {
+								serviceConnection.findOne(reward, (err, reward) => {
 									if (reward) {
 										finalRecommondation.push(reward);
 										if (x == finalItemSet.length - 1)
@@ -498,7 +502,7 @@ module.exports = {
 		redeemConnection.customerId = req.body.customerId;
 
 		redeemConnection.point = req.body.minPoint;
-		redeemConnection.rewardName = req.body.rewardName;
+		redeemConnection.rewardName = req.body.serviceName;
 		redeemConnection.redeemptionDate = Date.now();
 		redeemConnection.status = false;
 
@@ -568,6 +572,30 @@ module.exports = {
 		}
 	},
 
+	async usedRewards(req, res) {
+		try {
+			await redeemConnection.find((err, used) => {
+				if (err) {
+					return res.status(403).send({
+						error: err,
+					});
+				} else if (used == "") {
+					return res.status(404).send({
+						error: "There is no used reward for the customer",
+					});
+				} else {
+					res.send({
+						used: used,
+					});
+				}
+			});
+		} catch (err) {
+			res.status(403).send({
+				error: err,
+			});
+		}
+	},
+
 	async getCustomer(req, res) {
 		const customerId = {
 			referralCode: req.body.customerId,
@@ -578,7 +606,7 @@ module.exports = {
 					return res.status(403).send({
 						error: err,
 					});
-				} else if (client == "") {
+				} else if (client == null) {
 					return res.status(404).send({
 						error: "There is no customer, wrong bar code",
 					});
@@ -621,6 +649,107 @@ module.exports = {
 						});
 				}
 			);
+		} catch (err) {
+			res.status(403).send({
+				error: err,
+			});
+		}
+	},
+
+	async getCustomerById(req, res) {
+		const customerId = {
+			_id: req.body.sId,
+		};
+
+		try {
+			await clientRequireConnection.findOne(customerId, (err, client) => {
+				if (err)
+					return res.status(404).send({
+						error: "Some thing went wrong exist try again",
+					});
+				if (client == null) {
+					return res.status(404).send({
+						error: "User  does not exist try again",
+					});
+				} else {
+					res.status(201).send(client);
+				}
+			});
+		} catch (err) {
+			res.status(400).send({
+				error: err,
+			});
+		}
+	},
+
+	async giveComment(req, res) {
+		const comment = new commentConnectionModel();
+		(comment.comment = req.body.comment), (comment.commentDate = Date.now());
+
+		try {
+			await comment.save((err, comment) => {
+				if (err) {
+					return res.status(403).send({
+						error: "Some thing went wrong",
+					});
+				} else if (comment != "") {
+					res.status(201).send(comment);
+				} else
+					return res.status(404).send({
+						error: "commment not sent",
+					});
+			});
+		} catch (err) {
+			return res.status(400).send({
+				error: err,
+			});
+		}
+	},
+
+	async getCommets(req, res) {
+		try {
+			await commentConnection.find((err, comment) => {
+				if (err) {
+					return res.status(403).send({
+						error: err,
+					});
+				} else if (comment == "") {
+					return res.status(404).send({
+						error: "some thing went wrong",
+					});
+				} else {
+					res.send({
+						comment: comment,
+					});
+				}
+			});
+		} catch (err) {
+			res.status(403).send({
+				error: err,
+			});
+		}
+	},
+
+	async getRedeemd(req, res) {
+		const status = {
+			status: false,
+		};
+		try {
+			await redeemConnection.find(status, (err, redeemed) => {
+				if (err) {
+					return res.status(403).send({
+						error: err,
+					});
+				} else if (redeemed == "") {
+					return res.status(404).send({
+						error: "There is no redeemed reward for the customer",
+					});
+				} else {
+					res.send({
+						redeemed: redeemed,
+					});
+				}
+			});
 		} catch (err) {
 			res.status(403).send({
 				error: err,

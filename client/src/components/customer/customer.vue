@@ -77,7 +77,7 @@
             <p v-else>Male</p>
           </template>
           <template v-slot:[`item.isReferred`]="{ item }">
-            <p v-if="item.isReferred">Yes</p>
+            <p v-if="item.referredFrom != ''">Yes</p>
             <p v-else>No</p>
           </template>
           <template v-slot:[`item.actions`]="{ item }">

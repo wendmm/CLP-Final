@@ -27,9 +27,6 @@
       </v-layout>
       <v-btn text :loading="redeemLoading" v-if="redeemLoading"></v-btn>
       <v-layout row wrap v-if="redeemInfo.length > 0">
-        <p class="headline text-center">
-          Name: {{ customerInfo.firstName + " " + customerInfo.lastName }}
-        </p>
         <v-flex
           class="white text-center pa-10"
           xs12
@@ -52,9 +49,6 @@
           </div>
         </v-flex>
       </v-layout>
-      <p v-else class="red-text text-center">
-        There is no redeemed reward with this customer
-      </p>
     </div>
   </div>
 </template>
@@ -80,10 +74,10 @@ export default {
             barCode: this.barCode,
           });
           this.redeemInfo = response.data.redeemed;
-          const customerInfo = await apiService.getCustomer({
-            customerId: this.barCode,
-          });
-          this.customerInfo = customerInfo.data.client;
+          // const customerInfo = await apiService.getCustomer({
+          //   customerId: this.barCode,
+          // });
+          // this.customerInfo = customerInfo.data.client;
           this.redeemLoading = false;
           this.barCodeError = "";
           this.barCode = "";
